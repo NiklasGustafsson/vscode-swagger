@@ -1,0 +1,222 @@
+{
+    "swagger": 2.0,
+    "info": {
+        "title": "Client01",
+        "version": "0.9.0",
+		"description": "This is a test client definition. I only use it to test the Swagger-Preview Code plugin."
+    },
+    "host": "localhost:8000",
+	"schemes": ["http"],
+	"consumes": ["text/json", "application/json"],
+	"produces": ["text/json", "application/json"],
+    "paths": {
+		"/api/Greetings/{name}": {
+			"get": {
+				"tag": ["Greetings"],
+                "operationId": "Greetings_Get",
+                "produces": [
+                    "text/plain"
+                ],
+				"parameters": [
+					{
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ClientRequestId"
+                    },
+					{
+						"name": "title",
+						"in": "body",
+						"required": true,
+						"type": "string",
+						"description": "This is a list of databases sent back from a server."
+					}
+				],
+                "responses": {
+                    "200": {
+                        "description": "GETs a greeting.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+			"parameters": [
+				{
+					"name": "name",
+					"in": "path",
+					"required": true,
+					"type": "string"
+				}
+			]
+		},
+        "/api/HelloWorld/{name}": {
+            "put": {
+				"tags": ["HelloWorld"],
+                "operationId": "HelloWorld_Put",
+                "produces": [
+                    "text/plain"
+                ],
+				"parameters": [
+					{
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ClientRequestId"
+                    },
+					{
+						"name": "$top",
+						"x-ms-client-name": "",
+						"in": "query",
+						"required": false,
+						"type": "integer",
+						"format": "int32"
+					},
+					{
+						"name": "name",
+						"in": "path",
+						"required": true,
+						"type": "string"
+					}
+				],
+                "responses": {
+                    "200": {
+                        "description": "Retreives an existing greeting.",
+                        "schema": { 
+							"type": "array",
+							"items": {
+								"schema": { "$ref": "#/definitions/Database"}
+	                        }
+						},
+						"headers": {
+							"x-ms-first" : {
+								"description": "Just a test",
+								"name": "rightThen",
+								"type": "string"
+							},
+							"x-ms-second" : {
+								"description": "Just a test",
+								"name": "rightThen",
+								"type": "string"
+							}
+						}
+                    },
+					"201": {
+                        "description": "Creates a new greeting.",
+                        "schema": { 
+							"type": "array",
+							"items": {
+								"schema": { "$ref": "#/definitions/Database"}
+	                        }
+						},
+						"headers": {
+							"x-ms-first" : {
+								"description": "Just a test",
+								"name": "rightThen",
+								"type": "string"
+							},
+							"x-ms-second" : {
+								"description": "Just a test",
+								"name": "rightThen",
+								"type": "string"
+							}
+						}
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+		"Error" : {
+			"description": "Represents an error message",
+			"properties": {
+				"code" : { "type": "integer", "readOnly": true },
+				"message": { "type": "string", "readOnly": true}
+			}	
+		},
+		"DatabaseList": {
+			"description": "This is a list of databases sent back from a server.",
+			"properties": {
+				"_rid": {
+					"type": "string",
+					"readOnly": true,
+					"description": "This is a system generated property.\nThe _rid value is empty for this operation."
+				},
+				"_count": {
+					"type": "integer",
+					"readOnly": true,
+					"default": 0,
+					"description": "This property shows the number of databases returned."
+				},
+				"Databases": {
+					"type": "array",
+					"readOnly": true,
+					"description": "A list of databases.",
+					"items": { "$ref": "#/definitions/Database" }
+				}
+			}
+   	    },
+		"Database": {
+		  "required": [ "id" ],
+		  "description": "This represents a database on the server",
+		  "properties": {
+			"id": {
+				"type": "string",
+				"description": "The user generated unique name for the database, a string that\n must not be more than 255 characters."
+			},
+			"_rid": {
+				"type": "string",
+				"readOnly": true,
+				"description": "This is a system generated property.\nThe resource id (_rid) is a unique identifier that is also hierarchical per the resource stack on the resource model. It is used internally for placement of and navigation to the database resource."
+			},
+			"_ts": {
+				"type": "string",
+				"readOnly": true,
+				"description": "This is a system generated property.\nIt specifies the last updated timestamp of the resource. The value is a timestamp."
+			}
+   		  }
+		}
+	  },
+	  "parameters": {
+        "ApiVersionParameter": {
+            "name": "x-ms-version",
+            "x-ms-client-name": "version",
+            "in": "header",
+            "required": false,
+            "type": "string",
+            "x-ms-global": true,
+            "enum": [
+                "2009-07-17",
+                "2009-04-14"
+            ],
+            "default": "2015-04-05",
+            "description": "Specifies the version of the operation to use for this request."
+        },
+        "ClientRequestId": {
+            "name": "x-ms-client-request-id",
+            "x-ms-client-name": "requestId",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled."
+        }
+	},
+	"responses": {
+		"200": {
+			"description": "GETs a greeting.",
+			"schema": { 
+				"type": "array",
+				"items": {
+					"schema": { "$ref": "#/definitions/Database"}
+				}
+			},
+			"headers": {
+				"x-ms-foobar" : {
+					"description": "Just a test",
+					"name": "rightThen",
+					"type": "string"
+				}
+			}
+		}
+	}
+}
