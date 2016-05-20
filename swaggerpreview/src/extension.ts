@@ -487,25 +487,9 @@ main li.collapsed > .arrow::after {
 
             var result = '';
 
-            if (parameter.hasOwnProperty('$ref')) {
-                
-                if (this._doc.hasOwnProperty('parameters')) {
-                    let params = this._doc.parameters;
-                    var split = parameter['$ref'].split('/');
-                    if (split.length == 3 && params.hasOwnProperty(split[2])) {
-                        parameter = params[split[2]];
-                    }
-                    else {
-                        parameter = null;
-                    }                                        
-                }
-                else {
-                    parameter = null;
-                }                                   
-            }
+            parameter = this.resolveReference(parameter);
             
-            if (parameter == null)
-                return '';
+            if (parameter == null) return '';
             
             var isObject = parameter.hasOwnProperty('schema') && this.isObject(parameter.schema);           
             var type = this.getType(isObject ? parameter.schema : parameter);         
@@ -607,7 +591,6 @@ main li.collapsed > .arrow::after {
             var headers = this.getHeaders(response, isObject);
             
             result += '<tr><td width="1%"/>'
-            
             if (isObject) {
                 result += '<td width="25%" style="padding: 1.0rem 0 1.0rem 0" valign="top" colspan="2"><span class="description">' + this.getDescription(response) + '</span></td>';
                 result += '<tr><td width="1%"/><td width="*" colspan="2"><span class="type">' + type + '</span></td>'                                           
@@ -687,24 +670,10 @@ main li.collapsed > .arrow::after {
         private getSchema(schema, nested=false): string {
 
             var result = '';
-
-            if (schema.hasOwnProperty('$ref')) {
-                if (this._doc.hasOwnProperty('definitions'))
-                {
-                    let definitions = this._doc.definitions;
-                    var split = schema['$ref'].split('/');
-                    if (split.length == 3 && definitions.hasOwnProperty(split[2])) {
-                        schema = definitions[split[2]];
-                    } else {
-                        schema = null;
-                    }                    
-                } else {
-                    schema = null;
-                }
-            }            
-
-            if (schema == null)
-                return '';
+            
+            schema = this.resolveReference(schema);
+            
+            if (schema == null) return '';
 
             result += '<h4>Properties</h4>';
 
@@ -776,15 +745,15 @@ main li.collapsed > .arrow::after {
             }
             else if (element.hasOwnProperty('$ref')) {
                 
-                let definitions = this._doc.definitions;
-                var split = element['$ref'].split('/');
-                if (split.length == 3 && definitions.hasOwnProperty(split[2]))
+                let schema = this.resolveReference(element);           
+
+                if (schema)
                 {
-                    element = definitions[split[2]];
-                    return this.getType(element, array, split[2], nested);
+                    var split = element['$ref'].split('/');
+                    return this.getType(schema, array, split[2], nested);
                 }
             }
-
+            
             return '';
         }
 
@@ -862,28 +831,34 @@ main li.collapsed > .arrow::after {
         }
 
         private getDescription(element): string {
-            return element.hasOwnProperty('description') && element.description != '' ? element.description : 'Missing description.';
+            return element.hasOwnProperty('description') && element.description != '' ? element.description : '<span style="color:red">This element has no description.</span>';
         }
         
         private isObject(schema) : boolean {
             
-            if (schema.hasOwnProperty('$ref')) {
-                if (this._doc.hasOwnProperty('definitions')) {                        
-                    let definitions = this._doc.definitions;
-                    var split = schema['$ref'].split('/');
-                    if (split.length == 3 && definitions.hasOwnProperty(split[2])) {
-                        schema = definitions[split[2]];
-                    } else {
-                        schema = null;
-                    }
-                } else {
-                    schema = null;
-                }
-            } 
-            
+            schema = this.resolveReference(schema);           
             return schema.hasOwnProperty('properties') ||
                    (schema.hasOwnProperty('items') && this.isObject(schema.items)); 
         }        
+        
+        private resolveReference(reference)
+        {
+            if (reference.hasOwnProperty('$ref')) {
+                
+                let ref = reference['$ref'];
+                let split = ref.split('/');
+                
+                if (split.length == 3 && split[0] === '#' && 
+                    this._doc.hasOwnProperty(split[1]) && this._doc[split[1]].hasOwnProperty(split[2]))
+                {
+                    return this._doc[split[1]][split[2]];
+                }           
+                
+                return null;     
+            }
+            
+            return reference; 
+        }
     }
 
     let provider = new TextDocumentContentProvider();
