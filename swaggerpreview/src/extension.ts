@@ -487,41 +487,64 @@ main li.collapsed > .arrow::after {
 
             var result = '';
 
-            if (parameter.hasOwnProperty('$ref'))
-            {
-                let params = this._doc.parameters;
-                var split = parameter['$ref'].split('/');
-                if (split.length == 3 && params.hasOwnProperty(split[2]))
-                {
-                    parameter = params[split[2]];
+            if (parameter.hasOwnProperty('$ref')) {
+                
+                if (this._doc.hasOwnProperty('parameters')) {
+                    let params = this._doc.parameters;
+                    var split = parameter['$ref'].split('/');
+                    if (split.length == 3 && params.hasOwnProperty(split[2])) {
+                        parameter = params[split[2]];
+                    }
+                    else {
+                        parameter = null;
+                    }                                        
                 }
+                else {
+                    parameter = null;
+                }                                   
             }
+            
+            if (parameter == null)
+                return '';
+            
+            var isObject = parameter.hasOwnProperty('schema') && this.isObject(parameter.schema);           
+            var type = this.getType(isObject ? parameter.schema : parameter);         
+
             
             if (parameter.hasOwnProperty('name')) {
                 var required = (parameter.hasOwnProperty('required') && parameter.required);
 
                 result += '<tr><td width="1%"/>'
-                result += '<td width="25%" style="padding: 1.0rem 0 1.0rem 0" valign="top">' + this.getName('No Name', parameter) + '<span class="type">' + this.getType(parameter) + '</span></td>';
-                result += '<td width="*" style="padding: 1.0rem 0 1.0rem 0"><span class="description" valign="top">' + this.getDescription(parameter) + '</span>' +
-                    '<div class="info"><span class="key">This parameter is ' + (required ? 'required' : 'optional') + ' and passed in ' + this.getParameterLocation(parameter) + '</span>';
+                
+                if (isObject) {
+                    result += '<td width="25%" style="padding: 1.0rem 0 1.0rem 0" valign="top">' + this.getName('No Name', parameter) + '</td>';
+                    result += '<td width="*" style="padding: 1.0rem 0 1.0rem 0"><span class="description" valign="top">' + this.getDescription(parameter) + '</span>' +
+                        '<div class="info"><span class="key">This parameter is ' + (required ? 'required' : 'optional') + ' and passed in ' + this.getParameterLocation(parameter) + '</span>';
+                    result += '</div></td>'
+                    result += '<tr><td width="1%"/><td width="*" colspan="2"><span class="type">' + type + '</span></td>'                                                               
+                } else {
+                    result += '<td width="25%" style="padding: 1.0rem 0 1.0rem 0" valign="top">' + this.getName('No Name', parameter) + '<span class="type">' + type + '</span></td>';
+                    result += '<td width="*" style="padding: 1.0rem 0 1.0rem 0"><span class="description" valign="top">' + this.getDescription(parameter) + '</span>' +
+                        '<div class="info"><span class="key">This parameter is ' + (required ? 'required' : 'optional') + ' and passed in ' + this.getParameterLocation(parameter) + '</span>';
 
-                var dflt = this.getDefaultValue(parameter);
-                var valids = this.getValidValues(parameter);
+                    var dflt = this.getDefaultValue(parameter);
+                    var valids = this.getValidValues(parameter);
 
-                var isConstant = required && dflt != null && valids != null && parameter.enum.length == 1;
+                    var isConstant = required && dflt != null && valids != null && parameter.enum.length == 1;
 
-                if (valids != null)
-                    result += '</div><div><span class="key">Since this parameter is required and has only one valid value, it is effectively a constant.</span>'
+                    if (valids != null)
+                        result += '</div><div><span class="key">Since this parameter is required and has only one valid value, it is effectively a constant.</span>'
 
-                if (dflt != null) {
-                    result += '</div><div><span class="key">Default value: </span><span class="description" valign="top">' + dflt + '</span>'
+                    if (dflt != null) {
+                        result += '</div><div><span class="key">Default value: </span><span class="description" valign="top">' + dflt + '</span>'
+                    }
+                    if (valids != null) {
+                        result += '</div><div><span class="key">Valid values: </span><span class="description" valign="top">' + valids + '</span>'
+                    }
+
+                    result += '</div>'                    
                 }
-                if (valids != null) {
-                    result += '</div><div><span class="key">Valid values: </span><span class="description" valign="top">' + valids + '</span>'
-                }
-
-                result += '</div></td>'
-                result += '</tr>'
+                result += '</td></tr>'
             }
 
             return result;
@@ -559,24 +582,6 @@ main li.collapsed > .arrow::after {
             return result + '</div></ul></li>';
         }
 
-        private getGlobalResponse(key, response): string {
-
-            var result = '';
-            var type = this.getType(response);
-            var headers = this.getHeaders(response);
-
-            result += '<tr><td width="1%"/>'
-            result += '<td width="25%" style="padding: 1.0rem 0 1.0rem 0" valign="top"><span class="type">' + type + '</span></td>';
-            result += '<td width="*" style="padding: 1.0rem 0 1.0rem 0" valign="top"><span class="description">' + this.getDescription(response) + '</span>'
-            if (headers) {
-                result += '<div class="info"><span class="termlabel">Headers</span></div>'
-                result += '<div class="info"><span class="termlabel">' + headers + '</span></div>'
-            }
-            result += '</td></tr>'
-
-            return result;
-        }
-
         private getOperationResponses(responses): string {
 
             var result = '<h4>Responses</h4>';
@@ -593,22 +598,66 @@ main li.collapsed > .arrow::after {
             return result;
         }
 
+        private getGlobalResponse(key, response): string {
+
+            var result = '';
+            var isObject = response.hasOwnProperty('schema') && this.isObject(response.schema);           
+            var type = this.getType(response.hasOwnProperty('schema') ? response.schema : response);
+            
+            var headers = this.getHeaders(response, isObject);
+            
+            result += '<tr><td width="1%"/>'
+            
+            if (isObject) {
+                result += '<td width="25%" style="padding: 1.0rem 0 1.0rem 0" valign="top" colspan="2"><span class="description">' + this.getDescription(response) + '</span></td>';
+                result += '<tr><td width="1%"/><td width="*" colspan="2"><span class="type">' + type + '</span></td>'                                           
+                if (headers) {
+                    result += '</td></tr><tr><td width="1%"/><td width="*" colspan="2">'
+                    result += '<div class="info"><span class="termlabel" style="font-size: 1.50rem;color: #692682">Headers</span></div>'
+                    result += '<div class="info"><span class="termlabel">' + headers + '</span></div>'
+                }
+            } else {
+                result += '<td width="25%" style="padding: 1.0rem 0 1.0rem 0" valign="top"><span class="termlabel">' + key + '</span><span class="type">' + type + '</span></td>';
+                result += '<td width="*" style="padding: 1.0rem 0 1.0rem 0" valign="top"><span class="description">' + this.getDescription(response) + '</span>'                           
+                if (headers) {
+                    result += '<div class="info"><span class="termlabel" style="font-size: 1.50rem;color: #692682">Headers</span></div>'
+                    result += '<div class="info"><span class="termlabel">' + headers + '</span></div>'
+                }
+            }
+            
+            return result + '</td></tr>';
+        }
+
         private getOperationResponse(key, response): string {
 
             var result = '';
-            var type = this.getType(response.schema);
-            var headers = this.getHeaders(response);
-
-            result += '<tr><td width="1%"/>'
-            result += '<td width="25%" style="padding: 1.0rem 0 1.0rem 0" valign="top"><span class="termlabel">' + key + '</span><span class="type">' + type + '</span></td>';
-            result += '<td width="*" style="padding: 1.0rem 0 1.0rem 0" valign="top"><span class="description">' + this.getDescription(response) + '</span>'
+            var schema = response.schema;           
+            var isObject = response.hasOwnProperty('schema') && this.isObject(response.schema);            
+            var type = this.getType(response.hasOwnProperty('schema') ? response.schema : response);
             
-            if (headers) {
-                result += '<div class="info"><span class="termlabel" style="color: #692682">Headers</span></div>'
-                result += '<div class="info"><span class="termlabel">' + headers + '</span></div>'
+            var headers = this.getHeaders(response, isObject);
+            
+            result += '<tr><td width="1%"/>'
+            
+            if (isObject) {
+                result += '<td width="25%" style="padding: 1.0rem 0 1.0rem 0" valign="top"><span class="termlabel">' + key + '</span></td>';
+                result += '<td width="*" style="padding: 1.0rem 0 1.0rem 0" valign="top"><span class="description">' + this.getDescription(response) + '</span></td></tr>'
+                if (headers) {
+                    result += '<tr><td width="1%"/><td width="*" colspan="2">'
+                    result += '<div class="info"><span class="termlabel" style="font-size: 1.50rem;color: #692682">Headers</span></div>'
+                    result += '<div class="info"><span class="termlabel">' + headers + '</span></div></td></tr>'
+                }
+                result += '<tr><td width="1%"/><td width="*" colspan="2"><span class="type">' + type + '</span>'                                           
+            } else {
+                result += '<td width="25%" style="padding: 1.0rem 0 1.0rem 0" valign="top"><span class="termlabel">' + key + '</span><span class="type">' + type + '</span></td>';
+                result += '<td width="*" style="padding: 1.0rem 0 1.0rem 0" valign="top"><span class="description">' + this.getDescription(response) + '</span>'                           
+                if (headers) {
+                    result += '<div class="info"><span class="termlabel" style="font-size: 1.50rem;color: #692682">Headers</span></div>'
+                    result += '<div class="info"><span class="termlabel">' + headers + '</span></div>'
+                }
             }
-
-            return result + '</tr>';
+            
+            return result + '</td></tr>';
         }
 
         private getDefinitions(definitions): string {
@@ -635,19 +684,27 @@ main li.collapsed > .arrow::after {
             return result + '</ul></li>';
         }
 
-        private getSchema(schema): string {
+        private getSchema(schema, nested=false): string {
 
             var result = '';
 
-            if (schema.hasOwnProperty('$ref'))
-            {
-                let definitions = this._doc.definitions;
-                var split = schema['$ref'].split('/');
-                if (split.length == 3 && definitions.hasOwnProperty(split[2]))
+            if (schema.hasOwnProperty('$ref')) {
+                if (this._doc.hasOwnProperty('definitions'))
                 {
-                    schema = definitions[split[2]];
+                    let definitions = this._doc.definitions;
+                    var split = schema['$ref'].split('/');
+                    if (split.length == 3 && definitions.hasOwnProperty(split[2])) {
+                        schema = definitions[split[2]];
+                    } else {
+                        schema = null;
+                    }                    
+                } else {
+                    schema = null;
                 }
             }            
+
+            if (schema == null)
+                return '';
 
             result += '<h4>Properties</h4>';
 
@@ -660,22 +717,27 @@ main li.collapsed > .arrow::after {
                 var required = schema.hasOwnProperty('required') && (schema.required.indexOf(p) > -1);
 
                 result += '<tr><td width=".5%"/>'
-                result += '<td width="25%" style="padding: 1.0rem 0 1.0rem 0" valign="top">' + this.getName(p, property) + '<span class="type">' + this.getType(property) + '</span></td>';
-                result += '<td width="*" style="padding: 1.0rem 0 1.0rem 0" valign="top"><span class="description">' + this.getDescription(property) + '</span>' +
-                    '<div class="info"><span class="key">This property is ' + (required ? 'required' : 'optional');
+                result += '<td width="25%" style="padding: 1.0rem 0 1.0rem 0" valign="top">' + this.getName(p, property) + '<span class="type">' + this.getType(property,false, null, true) + '</span></td>';
 
-                if (property.hasOwnProperty('readOnly') && property.readOnly)
-                    result += ' and readonly. It may only occur in response payloads.'
+                if (nested) {
+                    result += '<td width="*" style="padding: 1.0rem 0 1.0rem 0" valign="top">';                    
+                } else {
+                    result += '<td width="*" style="padding: 1.0rem 0 1.0rem 0" valign="top"><span class="description">' + this.getDescription(property) + '</span>' +
+                              '<div class="info"><span class="key">This property is ' + (required ? 'required' : 'optional');
 
-                result += '</span></div>';
+                    if (property.hasOwnProperty('readOnly') && property.readOnly)
+                        result += ' and readonly. It may only occur in response payloads.'
 
-                var dflt = this.getDefaultValue(property);
-                var valids = this.getValidValues(property);
+                    result += '</span></div>';
 
-                if (dflt != null)
-                    result += '</div><div><span class="key">Default value: </span><span class="description">' + dflt + '</span>'
-                if (valids != null)
-                    result += '</div><div><span class="key">Valid values: </span><span class="description">' + valids + '</span>'
+                    var dflt = this.getDefaultValue(property);
+                    var valids = this.getValidValues(property);
+
+                    if (dflt != null)
+                        result += '</div><div><span class="key">Default value: </span><span class="description">' + dflt + '</span>'
+                    if (valids != null)
+                        result += '</div><div><span class="key">Valid values: </span><span class="description">' + valids + '</span>'
+                }
                 result += '</td></tr>'
             }
             result += '</table>'
@@ -684,7 +746,7 @@ main li.collapsed > .arrow::after {
             return result;
         }
 
-        private getType(element, array=false, caption=null): string {
+        private getType(element, array=false, caption=null, nested=false): string {
 
             if (element.hasOwnProperty('properties')) {
                 
@@ -701,14 +763,14 @@ main li.collapsed > .arrow::after {
                 result += '<div class="content">'
 
                 result += '<ul class="get-put"><li>'
-                result += this.getSchema(schema);
+                result += this.getSchema(schema, nested);
                 result += '</li></ul></div></li></ul>'       
                 return result;           
             }
             else if (element.hasOwnProperty('type')) {
                 var type = element.type;
                 if (type === 'array') {
-                    type = this.getType(element.items, true);
+                    type = this.getType(element.items, true, caption, nested);
                 }
                 return type;
             }
@@ -719,25 +781,31 @@ main li.collapsed > .arrow::after {
                 if (split.length == 3 && definitions.hasOwnProperty(split[2]))
                 {
                     element = definitions[split[2]];
-                    return this.getType(element, array, split[2]);
+                    return this.getType(element, array, split[2], nested);
                 }
             }
 
             return '';
         }
 
-        private getHeaders(element): string {
+        private getHeaders(element, useOuterTable=false): string {
 
             if (element.hasOwnProperty('headers')) {
-                var result = '<table class="description" width="100%">';
+                var result = useOuterTable ? '' : '<table class="description" width="100%">';
                 for (var hdr in element.headers) {
                     var header = element.headers[hdr];
                     var type = this.getType(header);
-                    result += '<tr>'
-                    result += '<td width="20%" valign="top">' + this.getHeaderName(hdr, header) + '<span class="type">' + type + '</span></td>';
-                    result += '<td width="*" valign="top"><span class="description">' + this.getDescription(header) + '</span></div>';
+                    if (useOuterTable) { 
+                        result += '<tr><td width="3%"/>'
+                        result += '<td width="23%" style="padding: .25rem 0 .25rem 0" valign="top">' + this.getHeaderName(hdr, header) + '<span class="type">' + type + '</span></td>';
+                        result += '<td width="*" style="padding: .25rem 0 .25rem 0" valign="top"><span class="description">' + this.getDescription(header) + '</span></div>';                       
+                    } else {
+                        result += '<tr>'
+                        result += '<td width="25%" style="padding: .25rem 0 .25rem 0" valign="top">' + this.getHeaderName(hdr, header) + '<span class="type">' + type + '</span></td>';
+                        result += '<td width="*" style="padding: .25rem 0 .25rem 0" valign="top"><span class="description">' + this.getDescription(header) + '</span></div>';
+                    }
                 }
-                result += '</table>'
+                result += useOuterTable ? '' : '</table>'
                 return result;
             }
 
@@ -796,6 +864,26 @@ main li.collapsed > .arrow::after {
         private getDescription(element): string {
             return element.hasOwnProperty('description') && element.description != '' ? element.description : 'Missing description.';
         }
+        
+        private isObject(schema) : boolean {
+            
+            if (schema.hasOwnProperty('$ref')) {
+                if (this._doc.hasOwnProperty('definitions')) {                        
+                    let definitions = this._doc.definitions;
+                    var split = schema['$ref'].split('/');
+                    if (split.length == 3 && definitions.hasOwnProperty(split[2])) {
+                        schema = definitions[split[2]];
+                    } else {
+                        schema = null;
+                    }
+                } else {
+                    schema = null;
+                }
+            } 
+            
+            return schema.hasOwnProperty('properties') ||
+                   (schema.hasOwnProperty('items') && this.isObject(schema.items)); 
+        }        
     }
 
     let provider = new TextDocumentContentProvider();

@@ -27,7 +27,16 @@
                     },
                     {
                         "$ref": "#/parameters/ClientRequestId"
-                    }
+                    },
+					{
+						"name": "dbase",
+						"in": "body",
+						"required": true,
+						"description": "Database information.",						
+						"schema": {
+                            "$ref": "#/definitions/Database"
+                        }
+					}
 				],
                 "responses": {
                     "200": {

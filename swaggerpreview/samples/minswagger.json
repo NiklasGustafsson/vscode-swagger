@@ -1,0 +1,100 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Client02",
+        "version": "0.9.1",
+		"license": {
+			"name": "MIT",
+			"url": "http://www.cnn.com"
+		},
+		"description": "This is a test client definition. I only use it to test the Swagger-Preview Code plugin."
+    },
+    "host": "localhost:8000",
+	"schemes": ["http"],
+	"consumes": ["text/json", "application/json"],
+	"produces": ["text/json", "application/json"],
+    "paths": {
+        "/api/HelloWorld/{name}": {
+            "get": {
+				"tags": ["HelloWorld"],
+                "operationId": "HelloWorld_Get",
+				"description": "Gets a greeting from the server",
+                "produces": [
+                    "text/plain"
+                ],
+				"parameters": [
+					{
+                        "$ref": "#/parameters/ApiVersionParameter"
+                    },
+                    {
+                        "$ref": "#/parameters/ClientRequestId"
+                    },
+					{
+						"name": "name",
+						"in": "path",
+						"required": true,
+						"enum": ["foo"],
+						"type": "string",
+						"default": "foo"
+					}
+				],
+                "responses": {
+                    "200": {
+                        "description": "GETs a greeting.",
+                        "schema": {
+                            "$ref": "#/definitions/DatabaseList"
+                        }
+                    },
+					"201": {
+                        "description": "GETs a greeting.",
+                        "schema": {
+                            "$ref": "#/definitions/Database"
+                        }
+                    },
+					"404": {
+                        "description": "GETs a greeting.",
+                        "schema": {
+							"description": "Represents an error message",
+							"type": "object",
+							"properties": {
+								"code" : { "type": "integer", "readOnly": true },
+								"message": { "type": "string", "readOnly": true}
+							}
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {},
+	"parameters": {
+        "ApiVersionParameter": {
+            "name": "x-ms-version",
+            "x-ms-client-name": "version",
+            "in": "header",
+            "required": false,
+            "type": "string",
+            "x-ms-global": true,
+            "enum": [
+                "2015-04-05",
+                "2014-02-14",
+                "2013-08-15",
+                "2012-02-12",
+                "2011-08-18",
+                "2009-09-19",
+                "2009-07-17",
+                "2009-04-14"
+            ],
+            "default": "2015-04-05",
+            "description": "Specifies the version of the operation to use for this request."
+        },
+        "ClientRequestId": {
+            "name": "x-ms-client-request-id",
+            "x-ms-client-name": "requestId",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "description": "Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled."
+        }
+	}
+}
