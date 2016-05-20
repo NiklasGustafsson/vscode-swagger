@@ -27,14 +27,7 @@
                     },
                     {
                         "$ref": "#/parameters/ClientRequestId"
-                    },
-					{
-						"name": "name",
-						"in": "path",
-						"required": true,
-						"type": "string",
-						"description": "This is a list of databases sent back from a server."
-					}
+                    }
 				],
                 "responses": {
                     "200": {
@@ -47,24 +40,11 @@
             },
 			"parameters": [
 				{
-					"$ref": "#/parameters/ApiVersionParameter"
-				},
-				{
-					"$ref": "#/parameters/ClientRequestId"
-				},
-				{
-					"name": "top",
-					"x-ms-client-name": "",
-					"in": "query",
-					"required": false,
-					"type": "integer",
-					"format": "int32"
-				},
-				{
 					"name": "name",
 					"in": "path",
 					"required": true,
-					"type": "string"
+					"type": "string",
+					"description": "A name of a greeting you want to hear."
 				}
 			]
 		},
