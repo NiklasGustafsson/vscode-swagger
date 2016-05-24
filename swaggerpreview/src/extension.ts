@@ -637,7 +637,7 @@ main li.collapsed > .arrow::after {
         //
         // Formats HTML for a response found under the top-level 'responses' section.
         //
-        private getGlobalResponse(key, response): string {
+        private getGlobalResponse(key, response) : string {
 
             var result = '';
             var isObject = response.hasOwnProperty('schema') && this.isObject(response.schema);           
@@ -710,6 +710,7 @@ main li.collapsed > .arrow::after {
             var result = '<li><h1 class="arrow" >Definitions</h1><ul>'
 
             for (var key in definitions) {
+                
                 var definition = definitions[key];
 
                 result += '<li><h2 class="arrow" style="font-size: 1.87rem">' + key + '</h2>';
@@ -743,6 +744,8 @@ main li.collapsed > .arrow::after {
             result += '<ul class="parameters"><li>';
             
             if (nested) {
+                // There's currently a problem formatting nested schema information, since the column get very narrow. Therefore, omit
+                // some of the descriptive information when nested.
                 result += '<span class="description">Please see the "definitions" entry for the schema for full details.</span>';               
             }
 
@@ -757,17 +760,16 @@ main li.collapsed > .arrow::after {
                 result += '<td width="25%" style="padding: 1.0rem 0 1.0rem 0" valign="top">' + this.getName(p, property) + '<span class="type">' + this.getType(property,false, null, true) + '</span></td>';
 
                 if (nested) {
-                    // There's currently a problem formatting nested schema information, since the column get very narrow. Therefore, omit
-                    // some of the descriptive information when nested.
                     result += '<td width="*" style="padding: 1.0rem 0 1.0rem 0" valign="top">';                    
                 } else {
                     result += '<td width="*" style="padding: 1.0rem 0 1.0rem 0" valign="top"><span class="description">' + this.getDescription(property) + '</span>' +
                               '<div class="info"><span class="key">This property is ' + (required ? 'required' : 'optional');
 
-                    if (property.hasOwnProperty('readOnly') && property.readOnly)
+                    if (property.hasOwnProperty('readOnly') && property.readOnly) {
                         // This is how the Swagger spec defines 'read-only': 
                         result += ' and readonly. It may only occur in response payloads.'
-
+                    }
+                                        
                     result += '</span></div>';
 
                     var isArray = property.hasOwnProperty('items');       
@@ -813,15 +815,13 @@ main li.collapsed > .arrow::after {
                 result += this.getSchema(schema, nested);
                 result += '</li></ul></div></li></ul>'       
                 return result;           
-            }
-            else if (element.hasOwnProperty('type')) {
+            } else if (element.hasOwnProperty('type')) {
                 var type = element.type;
                 if (type === 'array') {
                     type = this.getType(element.items, true, caption, nested) + ' array';
                 }
                 return type;
-            }
-            else if (element.hasOwnProperty('$ref')) {
+            } else if (element.hasOwnProperty('$ref')) {
                 
                 let schema = this.resolveReference(element);           
 
@@ -892,8 +892,7 @@ main li.collapsed > .arrow::after {
                 } else {
                     result = '<span class="value">' + lead + 'one of ' + result + '</span>';
                 }
-            }
-            else {
+            } else {
                 // Look for ranges of numeric values.
                 // Format using ISO-standard mathematical inclusive-exclusive range notation.
                 // See: https://en.wikipedia.org/wiki/ISO_31-11 for more details.
@@ -910,8 +909,7 @@ main li.collapsed > .arrow::after {
                         result += element.minimum;
                         result += '</span>'
                     }                    
-                }
-                else if (element.hasOwnProperty('maximum')) {
+                } else if (element.hasOwnProperty('maximum')) {
                     result += '<span class="value">' + lead;
                     result += (element.hasOwnProperty('exclusiveMaximum') && element.exclusiveMaximum) ? '<' : '≤';
                     result += element.maximum;                   
@@ -964,10 +962,13 @@ main li.collapsed > .arrow::after {
             var result = '';
 
             if (element.hasOwnProperty('name') && element['name'] != '') {
+               
                 result += '<span class="termlabel">' + element['name'] + '</span>'
+               
                 if (element.hasOwnProperty('x-ms-client-name') && element['x-ms-client-name'] != '') {
                     result += '<span class="type">Client name: ' + element['x-ms-client-name'] + '</span>'
                 }
+                
                 return result;
             }
 
@@ -983,10 +984,13 @@ main li.collapsed > .arrow::after {
             var result = '';
 
             if (element.hasOwnProperty('name') && element['name'] != '') {
+                
                 result += '<span class="key">' + element['name'] + '</span>'
+                
                 if (element.hasOwnProperty('x-ms-client-name') && element['x-ms-client-name'] != '') {
                     result += '<span class="type">Client name: ' + element['x-ms-client-name'] + '</span>'
                 }
+                
                 return result;
             }
 
@@ -1006,7 +1010,8 @@ main li.collapsed > .arrow::after {
         // 
         private isObject(schema) : boolean {
             
-            schema = this.resolveReference(schema);           
+            schema = this.resolveReference(schema);          
+             
             return schema.hasOwnProperty('properties') ||
                    (schema.hasOwnProperty('items') && this.isObject(schema.items)); 
         }        
@@ -1025,8 +1030,8 @@ main li.collapsed > .arrow::after {
                 let split = ref.split('/');
                 
                 if (split.length == 3 && split[0] === '#' && 
-                    this._doc.hasOwnProperty(split[1]) && this._doc[split[1]].hasOwnProperty(split[2]))
-                {
+                    this._doc.hasOwnProperty(split[1]) && this._doc[split[1]].hasOwnProperty(split[2])) {
+                        
                     return this._doc[split[1]][split[2]];
                 }           
                 
