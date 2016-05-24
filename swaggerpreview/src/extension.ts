@@ -11,133 +11,95 @@ export function activate(context: vscode.ExtensionContext) {
         private _onDidChange = new vscode.EventEmitter<vscode.Uri>();
         private _doc = null;
 
-        public provideTextDocumentContent(uri: vscode.Uri): string {
-            return this.createCssSnippet();
-        }
+        public provideTextDocumentContent(uri: vscode.Uri): string { return this.createCssSnippet(); }
 
-        get onDidChange(): vscode.Event<vscode.Uri> {
-            return this._onDidChange.event;
-        }
+        get onDidChange(): vscode.Event<vscode.Uri> { return this._onDidChange.event; }
 
-        public update(uri: vscode.Uri) {
-            this._onDidChange.fire(uri);
-        }
+        public update(uri: vscode.Uri) { this._onDidChange.fire(uri); }
 
         private createCssSnippet() {
             let editor = vscode.window.activeTextEditor;
             if (!(editor.document.languageId === 'json')) {
-                return this.errorSnippet("Active editor doesn't show a JSON document - no properties to preview.")
+                return "<body>Active editor doesn't show a JSON document - no properties to preview.</body>";
             }
-            return this.extractSnippet();
-        }
 
-        private extractSnippet(): string {
-            let editor = vscode.window.activeTextEditor;
             let doc = JSON.parse(editor.document.getText());
             this._doc = doc;
             return this.snippet(doc);
         }
 
-        private errorSnippet(error: string): string {
-            return `
-                <body>
-                    ${error}
-                </body>`;
-        }
-
         //
         // Formats HTML for a Swagger document.
         //
-        private snippet(doc): string {
-            
+        private snippet(doc): string {            
             // To simplify things, the style sheet is defined inside the HTML document.           
             var style =
                 `<style>
 html {
   font-family: "Segoe WPC", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", sans-serif, "Droid Sans Fallback";
   font-size: 10px; }
-
 body {
   font-family: "Segoe WPC", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", sans-serif, "Droid Sans Fallback";
   margin: 10px;
   min-width: 300px; }
-
 div, span, p, ul, ol, dl {
   font-size: 1.3rem; }
-
 h1, h2, h3, h4, h5, h6 {
   font-weight: initial; }
-
 ul {
   padding-left: 2rem;
   padding-right: 2rem; }
-
 h1 {
   font-size: 2.4rem;
   font-family: "Segoe UI Semilight", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", "Helvetica Neue", sans-serif, "Droid Sans Fallback";
   font-weight: 400;
   margin-top: 2rem;
   margin-bottom: .5rem; }
-
 h2 {
   font-size: 1.6rem;
   font-family: Menlo, Monaco, Consolas, "Droid Sans Mono", "Courier New", monospace, "Droid Sans Fallback";
   color: #0072c6;
   font-weight: 300; }
-
 h3, h4 {
   font-size: 1.6rem;
   color: #692682; }
-
 h4 {
   margin-bottom: 0; }
-
 ul {
   list-style: none; }
-
 .get-put .parameters,
 .get-put .responses {
   padding-left: 0; }
-
 .info {
   margin-top: .5rem; }
-
 .key {
   color: #767676;
   padding-right: .75rem;
   font-family: "Segoe UI Semibold", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", sans-serif, "Droid Sans Fallback"; }
-
 .termlabel {
   font-size: 1.6rem;
   font-family: "Segoe UI Semibold", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", sans-serif, "Droid Sans Fallback";
   color: #333333; }
-
 .optional-required {
   font-family: "Segoe UI Semibold", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", sans-serif, "Droid Sans Fallback";
   color: #333333;
   font-weight: 400; }
-
 .type {
   display: block; }
-
 dl {
   position: relative;
   width: 100%;
   margin: 0; }
-
 dt, dd {
   padding: .5rem 0 .5rem 0; }
-
 dt {
   position: absolute;
   width: 25%; }
-
 dd {
   position: relative;
   margin: 0; }
   dd > span, dd > div {
     margin-left: 25%; }
-
 header h1 {
   color: #692682;
   font-size: 3.7rem;
@@ -145,35 +107,29 @@ header h1 {
   font-weight: 300; }
   header h1:first-child {
     margin-top: 0; }
-
 header h2 {
   color: #767676;
   font-size: 1.87rem;
   font-family: "Segoe UI Semilight", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", "Helvetica Neue", sans-serif, "Droid Sans Fallback";
   font-weight: 400;
   margin-top: 0; }
-
 header ul {
   padding-left: 6px;
   border: 1px solid #dbdbdb;
   border-left: 6px solid #dbdbdb; }
-
 .collapsed .content {
   display: none; }
-
 main .get-put .description:not(:first-of-type) dd::after {
   content: "";
   display: block;
   border-top: 1px solid #dbdbdb;
   margin-top: 1.5rem; }
-
 main .get-put h3 {
   font-size: 1.87rem;
   color: #6c6c6c;
   text-transform: uppercase;
   font-family: "Segoe WPC", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", sans-serif, "Droid Sans Fallback";
   font-weight: bold; }
-
 main .arrow {
   cursor: pointer;
   display: block;
@@ -195,7 +151,6 @@ main .arrow {
     @media screen and (-ms-high-contrast: active) {
       main .arrow::before {
         border-color: transparent #fff transparent transparent; } }
-
 main li.collapsed > .arrow::before {
   border-width: 5.6px 5.6px 5.6px 7px;
   left: -15px;
@@ -205,7 +160,6 @@ main li.collapsed > .arrow::before {
     main li.collapsed > .arrow::before {
       border-color: transparent transparent transparent #fff;
       border-left-color: #fff; } }
-
 main li.collapsed > .arrow::after {
   -ms-high-contrast-adjust: none;
   position: absolute;
@@ -222,7 +176,6 @@ main li.collapsed > .arrow::after {
   left: 0%;
   margin-left: -13px; }
 				</style>`
-
             // Overall formatting logic -- include basic API information in the header.
             var intro = '<body><header>' + this.heading(doc) +
                 '<div class="summary"><p>' + this.getDescription(doc.info) + '</p>' +
@@ -230,8 +183,7 @@ main li.collapsed > .arrow::after {
                 '<tr><td class="key">Host:</td><td class="value">' + this.getHost(doc) + '</td></tr>' +
                 '<tr><td class="key">Schemes:</td><td class="value">' + this.getSchemes(doc) + '</td></tr>' +
                 '<tr><td class="key">License:</td><td class="value">' + this.getLicense(doc) + '</td></tr>' +
-                this.getConsumes(doc) +
-                this.getProduces(doc) +
+                this.getConsumes(doc) + this.getProduces(doc) +
                 '</table></ul></div></header>';
 
             // Then process the main sections: paths, definitions, parameters, and responses.
@@ -241,7 +193,7 @@ main li.collapsed > .arrow::after {
             var parameters = doc.hasOwnProperty('parameters') ? this.getClientParameters(doc.parameters) : '';
             var responses = doc.hasOwnProperty('responses') ? this.getGlobalResponses(doc.responses) : '';
 
-            var result = style + intro + '<main><ul>' +
+            return style + intro + '<main><ul>' +
                 paths + definitions + parameters + responses +
                 '</ul></main>' + `
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.3/jquery.min.js"></script>
@@ -250,21 +202,16 @@ main li.collapsed > .arrow::after {
 				var arrow = $('.arrow');
 				arrow.click(function(){
 					console.log('test');
-					//var content = $(this).siblings('.content');
 					var parent = $(this).parent();
-					
 					if (parent.hasClass('collapsed')) {
 						parent.removeClass('collapsed');
 					}
 					else {
 						parent.addClass('collapsed');
 					}
-					
 				});
 			});
 		</script></body>`
-
-            return result;
         }
 
         //
@@ -272,8 +219,7 @@ main li.collapsed > .arrow::after {
         //
         private heading(doc): string {
             var title = ((doc.info != null && doc.info.title != undefined) ? doc.info.title : '<div">No Document Title</div>');
-            var version =
-                ((doc.info != null && doc.info.version != undefined) ? doc.info.version : '<div">No Document Version</div>');
+            var version = ((doc.info != null && doc.info.version != undefined) ? doc.info.version : '<div">No Document Version</div>');
             return '<h1>' + title + '</h1><h2>Version ' + version + '</h2>';
         }
 
@@ -281,7 +227,6 @@ main li.collapsed > .arrow::after {
         // Retrieves the host information.
         //
         private getHost(doc): string {
-
             if (doc.hasOwnProperty('host')) {
                 return doc.host;
             } else {
@@ -293,7 +238,6 @@ main li.collapsed > .arrow::after {
         // Formats HTML for an 'info.license' element.
         //
         private getLicense(doc): string {
-
             if (doc.hasOwnProperty('info') && doc.info.hasOwnProperty('license')) {
                 var result = doc.info.license.name;
                 if (doc.info.license)
@@ -308,9 +252,7 @@ main li.collapsed > .arrow::after {
         // Formats HTML for a 'produces' element.
         //
         private getProduces(doc): string {
-
             var result = '';
-
             if (doc.hasOwnProperty('produces') && doc.produces.length > 0) {
                 result += '<tr><td class="key">Produces:</td><td class="value">';
                 for (var c in doc.produces) {
@@ -318,7 +260,6 @@ main li.collapsed > .arrow::after {
                 }
                 result += '</td></tr>';
             }
-
             return result;
         }
 
@@ -326,9 +267,7 @@ main li.collapsed > .arrow::after {
         // Formats HTML for a 'consumes' element.
         //
         private getConsumes(doc): string {
-
             var result = '';
-
             if (doc.hasOwnProperty('consumes') && doc.consumes.length > 0) {
                 result += '<tr><td class="key">Consumes:</td><td class="value">';
                 for (var c in doc.consumes) {
@@ -336,7 +275,6 @@ main li.collapsed > .arrow::after {
                 }
                 result += '</td></li>';
             }
-
             return result;
         }
         
@@ -344,9 +282,7 @@ main li.collapsed > .arrow::after {
         // Retrieves the declared protocols supported by the API.
         //
         private getSchemes(doc): string {
-
             var result = '';
-
             if (doc.hasOwnProperty('schemes')) {
                 for (var key in doc.schemes) {
                     result += doc.schemes[key] + '&nbsp;';
@@ -354,7 +290,6 @@ main li.collapsed > .arrow::after {
             } else {
                 result = 'no schemes specified';
             }
-
             return result;
         }
 
@@ -362,7 +297,6 @@ main li.collapsed > .arrow::after {
         // Formats HTML for all the path elements under the 'paths' and 'x-ms-paths' sections of the Swagger doc.
         //
         private getPaths(): string {
-
             var result = '<li><h1 class="arrow">Service Paths</h1><ul id="service_paths">';
             
             // Merge the standard Swagger 'paths' and the Microsoft-specific 'x-ms-paths' sections
@@ -374,7 +308,6 @@ main li.collapsed > .arrow::after {
                     paths[key] = this._doc.paths[key];                    
                 }
             }
-            
             if (this._doc.hasOwnProperty('x-ms-paths')) {         
                 for (var key in this._doc['x-ms-paths']) {
                     if (paths[key]) {
@@ -389,19 +322,15 @@ main li.collapsed > .arrow::after {
             }
             
             for (var key in paths) {
-
                 var element = paths[key];
-
                 result += '<li><h2 class="arrow">' + key + '</h2>';
                 result += '<div class="content">'
-
                 if (element.hasOwnProperty('parameters') && element.parameters.length > 0) {
                     result += '<h3 class="parameters-all">Parameters for All Operations</h3>';
                     result += this.getOperationParameters('Parameters for All Methods', element);
                 }
 
                 result += this.getOperations(element);
-
                 result += '</div></li>';
             }
             return result + '</ul></li>';
@@ -411,13 +340,9 @@ main li.collapsed > .arrow::after {
         // Formats HTML for the operations of a path element.
         //
         private getOperations(path): string {
-
             var result = '<ul class="get-put">';
-
             for (var key in path) {
-                
                 var element = path[key];
-                
                 switch (key) {
                     case 'get':
                     case 'put':
@@ -468,7 +393,6 @@ main li.collapsed > .arrow::after {
                 }
                 result += '</div></li>'
             }
-
             return result + '</ul>';
         }
 
@@ -476,9 +400,7 @@ main li.collapsed > .arrow::after {
         // Formats HTML for the parameter definitions under a specific operation.
         //
         private getOperationParameters(caption, operation): string {
-
             var result = '';
-
             if (operation.hasOwnProperty('parameters')) {
                 result += '<ul class="parameters"><li>';
                 result += '<table width="100%" class="description">';
@@ -489,7 +411,6 @@ main li.collapsed > .arrow::after {
                 result += '</table>';
                 result += '</li></ul>';
             }
-
             return result;
         }
 
@@ -788,7 +709,6 @@ main li.collapsed > .arrow::after {
             }
             result += '</table>'
             result += '</li></ul>';
-
             return result;
         }
 
@@ -796,7 +716,6 @@ main li.collapsed > .arrow::after {
         // Formats HTML for any type.
         //
         private getType(element, array=false, caption=null, nested=false): string {
-
             if (element.hasOwnProperty('properties')) {
                 
                 var schema = element;
@@ -831,7 +750,6 @@ main li.collapsed > .arrow::after {
                     return this.getType(schema, array, split[2], nested);
                 }
             }
-            
             return '';
         }
 
@@ -839,7 +757,6 @@ main li.collapsed > .arrow::after {
         // Formats HTML table rows for each header element of a response definition.
         // 
         private getHeaders(element, useOuterTable=false): string {
-
             if (element.hasOwnProperty('headers')) {
                 var result = useOuterTable ? '' : '<table class="description" width="100%">';
                 for (var hdr in element.headers) {
@@ -858,7 +775,6 @@ main li.collapsed > .arrow::after {
                 result += useOuterTable ? '' : '</table>'
                 return result;
             }
-
             return null;
         }
 
@@ -875,11 +791,8 @@ main li.collapsed > .arrow::after {
         // elements.
         // 
         private getValidValues(element, isArray : boolean) : string {
-            
             var result =''
-
             var lead = isArray ? 'Each element value must be ' : 'The value must be ';
-
             if (element.hasOwnProperty('enum') && element.enum.length > 0) {
                 var first = true
                 for (var c in element.enum) {
@@ -916,7 +829,6 @@ main li.collapsed > .arrow::after {
                     result += '</span>'
                 }
             }
-            
             return result.length == 0 ? null : result;
         }
         
@@ -925,10 +837,8 @@ main li.collapsed > .arrow::after {
         // are handled, with the constraints applied to the array elements.
         // 
         private getConstraints(element, isArray : boolean) : string {
-
             var result = '';
             var lead = isArray ? 'Each element value must be ' : 'The value must be ';
-
             if (element.hasOwnProperty('minLength')) {
                 result += '<span class="value">Minimum length: ' + element.minLength + '. </span>';
             }
@@ -950,7 +860,6 @@ main li.collapsed > .arrow::after {
             if (element.hasOwnProperty('uniqueItems') && element.uniqueItems) {
                 result += '<span class="value">' + lead + 'unique.</span>';
             }
-            
             return result;            
         }
 
@@ -958,20 +867,14 @@ main li.collapsed > .arrow::after {
         // Formats HTML for the name and client name (if one is set) of an element and format the HTML for it.
         //
         private getName(deflt, element): string {
-
             var result = '';
-
             if (element.hasOwnProperty('name') && element['name'] != '') {
-               
                 result += '<span class="termlabel">' + element['name'] + '</span>'
-               
                 if (element.hasOwnProperty('x-ms-client-name') && element['x-ms-client-name'] != '') {
                     result += '<span class="type">Client name: ' + element['x-ms-client-name'] + '</span>'
                 }
-                
                 return result;
             }
-
             return '<span class="termlabel">' + deflt + '</span>';
         }
 
@@ -980,20 +883,14 @@ main li.collapsed > .arrow::after {
         // compared with getName(), suitable for inclusion in response listings.
         //
         private getHeaderName(deflt, element): string {
-
             var result = '';
-
             if (element.hasOwnProperty('name') && element['name'] != '') {
-                
                 result += '<span class="key">' + element['name'] + '</span>'
-                
                 if (element.hasOwnProperty('x-ms-client-name') && element['x-ms-client-name'] != '') {
                     result += '<span class="type">Client name: ' + element['x-ms-client-name'] + '</span>'
                 }
-                
                 return result;
             }
-
             return '<span class="key">' + deflt + '</span>';
         }
 
@@ -1012,8 +909,7 @@ main li.collapsed > .arrow::after {
             
             schema = this.resolveReference(schema);          
              
-            return schema.hasOwnProperty('properties') ||
-                   (schema.hasOwnProperty('items') && this.isObject(schema.items)); 
+            return schema.hasOwnProperty('properties') || (schema.hasOwnProperty('items') && this.isObject(schema.items)); 
         }        
         
         //
@@ -1025,19 +921,15 @@ main li.collapsed > .arrow::after {
         {
             // TODO: support external references, too.
             if (reference.hasOwnProperty('$ref')) {
-                
                 let ref = reference['$ref'];
                 let split = ref.split('/');
-                
                 if (split.length == 3 && split[0] === '#' && 
                     this._doc.hasOwnProperty(split[1]) && this._doc[split[1]].hasOwnProperty(split[2])) {
                         
                     return this._doc[split[1]][split[2]];
                 }           
-                
                 return null;     
             }
-            
             return reference; 
         }
     }
@@ -1047,19 +939,16 @@ main li.collapsed > .arrow::after {
     //
     let provider = new TextDocumentContentProvider();
     let registration = vscode.workspace.registerTextDocumentContentProvider('swagger-preview', provider);
-
     vscode.workspace.onDidChangeTextDocument((e: vscode.TextDocumentChangeEvent) => {
         if (e.document === vscode.window.activeTextEditor.document) {
             provider.update(previewUri);
         }
     });
-
     vscode.window.onDidChangeTextEditorSelection((e: vscode.TextEditorSelectionChangeEvent) => {
         if (e.textEditor === vscode.window.activeTextEditor) {
             provider.update(previewUri);
         }
     })
-
     let disposable = vscode.commands.registerCommand('extension.showSwaggerPreview', () => {
         return vscode.commands.executeCommand('vscode.previewHtml', previewUri, vscode.ViewColumn.Two).then((success) => {
         }, (reason) => {
@@ -1069,6 +958,4 @@ main li.collapsed > .arrow::after {
     });
     context.subscriptions.push(disposable, registration);
 }
-
-export function deactivate() {
-}
+export function deactivate() { }

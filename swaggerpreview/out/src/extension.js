@@ -9,41 +9,28 @@ function activate(context) {
             this._onDidChange = new vscode.EventEmitter();
             this._doc = null;
         }
-        TextDocumentContentProvider.prototype.provideTextDocumentContent = function (uri) {
-            return this.createCssSnippet();
-        };
+        TextDocumentContentProvider.prototype.provideTextDocumentContent = function (uri) { return this.createCssSnippet(); };
         Object.defineProperty(TextDocumentContentProvider.prototype, "onDidChange", {
-            get: function () {
-                return this._onDidChange.event;
-            },
+            get: function () { return this._onDidChange.event; },
             enumerable: true,
             configurable: true
         });
-        TextDocumentContentProvider.prototype.update = function (uri) {
-            this._onDidChange.fire(uri);
-        };
+        TextDocumentContentProvider.prototype.update = function (uri) { this._onDidChange.fire(uri); };
         TextDocumentContentProvider.prototype.createCssSnippet = function () {
             var editor = vscode.window.activeTextEditor;
             if (!(editor.document.languageId === 'json')) {
-                return this.errorSnippet("Active editor doesn't show a JSON document - no properties to preview.");
+                return "<body>Active editor doesn't show a JSON document - no properties to preview.</body>";
             }
-            return this.extractSnippet();
-        };
-        TextDocumentContentProvider.prototype.extractSnippet = function () {
-            var editor = vscode.window.activeTextEditor;
             var doc = JSON.parse(editor.document.getText());
             this._doc = doc;
             return this.snippet(doc);
-        };
-        TextDocumentContentProvider.prototype.errorSnippet = function (error) {
-            return "\n                <body>\n                    " + error + "\n                </body>";
         };
         //
         // Formats HTML for a Swagger document.
         //
         TextDocumentContentProvider.prototype.snippet = function (doc) {
             // To simplify things, the style sheet is defined inside the HTML document.           
-            var style = "<style>\nhtml {\n  font-family: \"Segoe WPC\", \"Segoe UI\", \"SFUIText-Light\", \"HelveticaNeue-Light\", sans-serif, \"Droid Sans Fallback\";\n  font-size: 10px; }\n\nbody {\n  font-family: \"Segoe WPC\", \"Segoe UI\", \"SFUIText-Light\", \"HelveticaNeue-Light\", sans-serif, \"Droid Sans Fallback\";\n  margin: 10px;\n  min-width: 300px; }\n\ndiv, span, p, ul, ol, dl {\n  font-size: 1.3rem; }\n\nh1, h2, h3, h4, h5, h6 {\n  font-weight: initial; }\n\nul {\n  padding-left: 2rem;\n  padding-right: 2rem; }\n\nh1 {\n  font-size: 2.4rem;\n  font-family: \"Segoe UI Semilight\", \"Segoe UI\", \"SFUIText-Light\", \"HelveticaNeue-Light\", \"Helvetica Neue\", sans-serif, \"Droid Sans Fallback\";\n  font-weight: 400;\n  margin-top: 2rem;\n  margin-bottom: .5rem; }\n\nh2 {\n  font-size: 1.6rem;\n  font-family: Menlo, Monaco, Consolas, \"Droid Sans Mono\", \"Courier New\", monospace, \"Droid Sans Fallback\";\n  color: #0072c6;\n  font-weight: 300; }\n\nh3, h4 {\n  font-size: 1.6rem;\n  color: #692682; }\n\nh4 {\n  margin-bottom: 0; }\n\nul {\n  list-style: none; }\n\n.get-put .parameters,\n.get-put .responses {\n  padding-left: 0; }\n\n.info {\n  margin-top: .5rem; }\n\n.key {\n  color: #767676;\n  padding-right: .75rem;\n  font-family: \"Segoe UI Semibold\", \"Segoe UI\", \"SFUIText-Light\", \"HelveticaNeue-Light\", sans-serif, \"Droid Sans Fallback\"; }\n\n.termlabel {\n  font-size: 1.6rem;\n  font-family: \"Segoe UI Semibold\", \"Segoe UI\", \"SFUIText-Light\", \"HelveticaNeue-Light\", sans-serif, \"Droid Sans Fallback\";\n  color: #333333; }\n\n.optional-required {\n  font-family: \"Segoe UI Semibold\", \"Segoe UI\", \"SFUIText-Light\", \"HelveticaNeue-Light\", sans-serif, \"Droid Sans Fallback\";\n  color: #333333;\n  font-weight: 400; }\n\n.type {\n  display: block; }\n\ndl {\n  position: relative;\n  width: 100%;\n  margin: 0; }\n\ndt, dd {\n  padding: .5rem 0 .5rem 0; }\n\ndt {\n  position: absolute;\n  width: 25%; }\n\ndd {\n  position: relative;\n  margin: 0; }\n  dd > span, dd > div {\n    margin-left: 25%; }\n\nheader h1 {\n  color: #692682;\n  font-size: 3.7rem;\n  font-family: \"Segoe UI Light\", \"Segoe UI\", \"SFUIText-Light\", \"HelveticaNeue-Light\", \"Helvetica Neue\", sans-serif, \"Droid Sans Fallback\";\n  font-weight: 300; }\n  header h1:first-child {\n    margin-top: 0; }\n\nheader h2 {\n  color: #767676;\n  font-size: 1.87rem;\n  font-family: \"Segoe UI Semilight\", \"Segoe UI\", \"SFUIText-Light\", \"HelveticaNeue-Light\", \"Helvetica Neue\", sans-serif, \"Droid Sans Fallback\";\n  font-weight: 400;\n  margin-top: 0; }\n\nheader ul {\n  padding-left: 6px;\n  border: 1px solid #dbdbdb;\n  border-left: 6px solid #dbdbdb; }\n\n.collapsed .content {\n  display: none; }\n\nmain .get-put .description:not(:first-of-type) dd::after {\n  content: \"\";\n  display: block;\n  border-top: 1px solid #dbdbdb;\n  margin-top: 1.5rem; }\n\nmain .get-put h3 {\n  font-size: 1.87rem;\n  color: #6c6c6c;\n  text-transform: uppercase;\n  font-family: \"Segoe WPC\", \"Segoe UI\", \"SFUIText-Light\", \"HelveticaNeue-Light\", sans-serif, \"Droid Sans Fallback\";\n  font-weight: bold; }\n\nmain .arrow {\n  cursor: pointer;\n  display: block;\n  position: relative; }\n  main .arrow > h2, main .arrow > h3 {\n    cursor: pointer; }\n  main .arrow::before {\n    -ms-high-contrast-adjust: none;\n    position: absolute;\n    display: block;\n    content: \"\";\n    width: 0;\n    height: 0;\n    top: 7px;\n    border-style: solid;\n    border-color: transparent #646465 transparent transparent;\n    border-width: 8.4px 8.4px 0 7px;\n    left: -21px; }\n    @media screen and (-ms-high-contrast: active) {\n      main .arrow::before {\n        border-color: transparent #fff transparent transparent; } }\n\nmain li.collapsed > .arrow::before {\n  border-width: 5.6px 5.6px 5.6px 7px;\n  left: -15px;\n  border-color: transparent transparent transparent #A6A6A6;\n  border-left-color: #D4D4D4; }\n  @media screen and (-ms-high-contrast: active) {\n    main li.collapsed > .arrow::before {\n      border-color: transparent transparent transparent #fff;\n      border-left-color: #fff; } }\n\nmain li.collapsed > .arrow::after {\n  -ms-high-contrast-adjust: none;\n  position: absolute;\n  display: block;\n  content: \"\";\n  width: 0;\n  height: 0;\n  border-style: solid;\n  border-color: transparent;\n  border-left-color: #f6f6f6;\n  border-width: 2px;\n  border-left-width: 2px;\n  top: 10px;\n  left: 0%;\n  margin-left: -13px; }\n\t\t\t\t</style>";
+            var style = "<style>\nhtml {\n  font-family: \"Segoe WPC\", \"Segoe UI\", \"SFUIText-Light\", \"HelveticaNeue-Light\", sans-serif, \"Droid Sans Fallback\";\n  font-size: 10px; }\nbody {\n  font-family: \"Segoe WPC\", \"Segoe UI\", \"SFUIText-Light\", \"HelveticaNeue-Light\", sans-serif, \"Droid Sans Fallback\";\n  margin: 10px;\n  min-width: 300px; }\ndiv, span, p, ul, ol, dl {\n  font-size: 1.3rem; }\nh1, h2, h3, h4, h5, h6 {\n  font-weight: initial; }\nul {\n  padding-left: 2rem;\n  padding-right: 2rem; }\nh1 {\n  font-size: 2.4rem;\n  font-family: \"Segoe UI Semilight\", \"Segoe UI\", \"SFUIText-Light\", \"HelveticaNeue-Light\", \"Helvetica Neue\", sans-serif, \"Droid Sans Fallback\";\n  font-weight: 400;\n  margin-top: 2rem;\n  margin-bottom: .5rem; }\nh2 {\n  font-size: 1.6rem;\n  font-family: Menlo, Monaco, Consolas, \"Droid Sans Mono\", \"Courier New\", monospace, \"Droid Sans Fallback\";\n  color: #0072c6;\n  font-weight: 300; }\nh3, h4 {\n  font-size: 1.6rem;\n  color: #692682; }\nh4 {\n  margin-bottom: 0; }\nul {\n  list-style: none; }\n.get-put .parameters,\n.get-put .responses {\n  padding-left: 0; }\n.info {\n  margin-top: .5rem; }\n.key {\n  color: #767676;\n  padding-right: .75rem;\n  font-family: \"Segoe UI Semibold\", \"Segoe UI\", \"SFUIText-Light\", \"HelveticaNeue-Light\", sans-serif, \"Droid Sans Fallback\"; }\n.termlabel {\n  font-size: 1.6rem;\n  font-family: \"Segoe UI Semibold\", \"Segoe UI\", \"SFUIText-Light\", \"HelveticaNeue-Light\", sans-serif, \"Droid Sans Fallback\";\n  color: #333333; }\n.optional-required {\n  font-family: \"Segoe UI Semibold\", \"Segoe UI\", \"SFUIText-Light\", \"HelveticaNeue-Light\", sans-serif, \"Droid Sans Fallback\";\n  color: #333333;\n  font-weight: 400; }\n.type {\n  display: block; }\ndl {\n  position: relative;\n  width: 100%;\n  margin: 0; }\ndt, dd {\n  padding: .5rem 0 .5rem 0; }\ndt {\n  position: absolute;\n  width: 25%; }\ndd {\n  position: relative;\n  margin: 0; }\n  dd > span, dd > div {\n    margin-left: 25%; }\nheader h1 {\n  color: #692682;\n  font-size: 3.7rem;\n  font-family: \"Segoe UI Light\", \"Segoe UI\", \"SFUIText-Light\", \"HelveticaNeue-Light\", \"Helvetica Neue\", sans-serif, \"Droid Sans Fallback\";\n  font-weight: 300; }\n  header h1:first-child {\n    margin-top: 0; }\nheader h2 {\n  color: #767676;\n  font-size: 1.87rem;\n  font-family: \"Segoe UI Semilight\", \"Segoe UI\", \"SFUIText-Light\", \"HelveticaNeue-Light\", \"Helvetica Neue\", sans-serif, \"Droid Sans Fallback\";\n  font-weight: 400;\n  margin-top: 0; }\nheader ul {\n  padding-left: 6px;\n  border: 1px solid #dbdbdb;\n  border-left: 6px solid #dbdbdb; }\n.collapsed .content {\n  display: none; }\nmain .get-put .description:not(:first-of-type) dd::after {\n  content: \"\";\n  display: block;\n  border-top: 1px solid #dbdbdb;\n  margin-top: 1.5rem; }\nmain .get-put h3 {\n  font-size: 1.87rem;\n  color: #6c6c6c;\n  text-transform: uppercase;\n  font-family: \"Segoe WPC\", \"Segoe UI\", \"SFUIText-Light\", \"HelveticaNeue-Light\", sans-serif, \"Droid Sans Fallback\";\n  font-weight: bold; }\nmain .arrow {\n  cursor: pointer;\n  display: block;\n  position: relative; }\n  main .arrow > h2, main .arrow > h3 {\n    cursor: pointer; }\n  main .arrow::before {\n    -ms-high-contrast-adjust: none;\n    position: absolute;\n    display: block;\n    content: \"\";\n    width: 0;\n    height: 0;\n    top: 7px;\n    border-style: solid;\n    border-color: transparent #646465 transparent transparent;\n    border-width: 8.4px 8.4px 0 7px;\n    left: -21px; }\n    @media screen and (-ms-high-contrast: active) {\n      main .arrow::before {\n        border-color: transparent #fff transparent transparent; } }\nmain li.collapsed > .arrow::before {\n  border-width: 5.6px 5.6px 5.6px 7px;\n  left: -15px;\n  border-color: transparent transparent transparent #A6A6A6;\n  border-left-color: #D4D4D4; }\n  @media screen and (-ms-high-contrast: active) {\n    main li.collapsed > .arrow::before {\n      border-color: transparent transparent transparent #fff;\n      border-left-color: #fff; } }\nmain li.collapsed > .arrow::after {\n  -ms-high-contrast-adjust: none;\n  position: absolute;\n  display: block;\n  content: \"\";\n  width: 0;\n  height: 0;\n  border-style: solid;\n  border-color: transparent;\n  border-left-color: #f6f6f6;\n  border-width: 2px;\n  border-left-width: 2px;\n  top: 10px;\n  left: 0%;\n  margin-left: -13px; }\n\t\t\t\t</style>";
             // Overall formatting logic -- include basic API information in the header.
             var intro = '<body><header>' + this.heading(doc) +
                 '<div class="summary"><p>' + this.getDescription(doc.info) + '</p>' +
@@ -51,8 +38,7 @@ function activate(context) {
                 '<tr><td class="key">Host:</td><td class="value">' + this.getHost(doc) + '</td></tr>' +
                 '<tr><td class="key">Schemes:</td><td class="value">' + this.getSchemes(doc) + '</td></tr>' +
                 '<tr><td class="key">License:</td><td class="value">' + this.getLicense(doc) + '</td></tr>' +
-                this.getConsumes(doc) +
-                this.getProduces(doc) +
+                this.getConsumes(doc) + this.getProduces(doc) +
                 '</table></ul></div></header>';
             // Then process the main sections: paths, definitions, parameters, and responses.
             // TODO: Support the security-related sections, too.
@@ -60,10 +46,9 @@ function activate(context) {
             var definitions = doc.hasOwnProperty('definitions') ? this.getDefinitions(doc.definitions) : '';
             var parameters = doc.hasOwnProperty('parameters') ? this.getClientParameters(doc.parameters) : '';
             var responses = doc.hasOwnProperty('responses') ? this.getGlobalResponses(doc.responses) : '';
-            var result = style + intro + '<main><ul>' +
+            return style + intro + '<main><ul>' +
                 paths + definitions + parameters + responses +
-                '</ul></main>' + "\n\t\t<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/2.2.3/jquery.min.js\"></script>\n\t\t<script>\n\t\t\t$(document).ready(function(){\n\t\t\t\tvar arrow = $('.arrow');\n\t\t\t\tarrow.click(function(){\n\t\t\t\t\tconsole.log('test');\n\t\t\t\t\t//var content = $(this).siblings('.content');\n\t\t\t\t\tvar parent = $(this).parent();\n\t\t\t\t\t\n\t\t\t\t\tif (parent.hasClass('collapsed')) {\n\t\t\t\t\t\tparent.removeClass('collapsed');\n\t\t\t\t\t}\n\t\t\t\t\telse {\n\t\t\t\t\t\tparent.addClass('collapsed');\n\t\t\t\t\t}\n\t\t\t\t\t\n\t\t\t\t});\n\t\t\t});\n\t\t</script></body>";
-            return result;
+                '</ul></main>' + "\n\t\t<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/2.2.3/jquery.min.js\"></script>\n\t\t<script>\n\t\t\t$(document).ready(function(){\n\t\t\t\tvar arrow = $('.arrow');\n\t\t\t\tarrow.click(function(){\n\t\t\t\t\tconsole.log('test');\n\t\t\t\t\tvar parent = $(this).parent();\n\t\t\t\t\tif (parent.hasClass('collapsed')) {\n\t\t\t\t\t\tparent.removeClass('collapsed');\n\t\t\t\t\t}\n\t\t\t\t\telse {\n\t\t\t\t\t\tparent.addClass('collapsed');\n\t\t\t\t\t}\n\t\t\t\t});\n\t\t\t});\n\t\t</script></body>";
         };
         //
         // Formaths the HTML for the heading, which includes the title and version label.
@@ -676,8 +661,7 @@ function activate(context) {
         // 
         TextDocumentContentProvider.prototype.isObject = function (schema) {
             schema = this.resolveReference(schema);
-            return schema.hasOwnProperty('properties') ||
-                (schema.hasOwnProperty('items') && this.isObject(schema.items));
+            return schema.hasOwnProperty('properties') || (schema.hasOwnProperty('items') && this.isObject(schema.items));
         };
         //
         // Resolves a reference to a payload definition, parameter, or response. Only internal document
@@ -723,7 +707,6 @@ function activate(context) {
     context.subscriptions.push(disposable, registration);
 }
 exports.activate = activate;
-function deactivate() {
-}
+function deactivate() { }
 exports.deactivate = deactivate;
 //# sourceMappingURL=extension.js.map
