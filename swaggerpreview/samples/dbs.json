@@ -1,0 +1,2546 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "0.0.1",
+    "title": "DocumentDB",
+    "contact": {
+      "url": "",
+      "name": "",
+      "email": ""
+    },
+    "license": {
+      "url": "http://tempuri.org",
+      "name": "MIT"
+    },
+    "description": "Azure API Connection for DocumentDB"
+  },
+  "host": "invalid.documents.azure.com:443",
+  "x-ms-parameterized-host": {
+    "hostTemplate": "{accountName}.documents.azure.com:443",
+    "parameters": [ { "$ref": "#/parameters/AccountName" } ]
+  },
+  "tags": [
+    {
+      "name": "Database",
+      "description": "Databases section"
+    }
+  ],
+  "schemes": [ "https" ],
+  "paths": {
+    "/dbs": {
+      "get": {
+        "tags": [ "Database" ],
+        "summary": "List Databases",
+        "description": "List Databases. The database resource is represented by dbs in the <a href=\"http://azure.microsoft.com/documentation/articles/documentdb-resources/\">DocumentDB resource model</a>",
+        "operationId": "Databases_List",
+        "consumes": [ ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          },
+          {
+            "name": "x-ms-max-item-count",
+            "x-ms-client-name": "maxItems",
+            "type": "integer",
+            "in": "header",
+            "default": -1,
+            "required": false,
+            "description": "An integer indicating the number of items returned per page. To optimize retrieval of data from DocumentDB, we recommend that this header to be set to -1. "
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The operation was successful",
+            "schema": {
+              "$ref": "#/definitions/DatabaseList"
+            }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token." },
+          "403": { "description": "The authorization token has expired." }
+        }
+      },
+      "post": {
+        "tags": [ "Database" ],
+        "summary": "Create a new Database",
+        "description": "The database resource is represented by dbs in the [DocumentDB resource model](http://azure.microsoft.com/documentation/articles/documentdb-resources/)",
+        "operationId": "Databases_Create",
+        "consumes": [ "application/json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "database",
+            "in": "body",
+            "required": true,
+            "schema": { "$ref": "#/definitions/Database" },
+            "description": "The user-selected name of a database to create"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created",
+            "schema": { "$ref": "#/definitions/Database" }
+          },
+          "400": { "description": "Bad Request" },
+          "401": { "description": "Unauthorized" },
+          "403": { "description": "Forbidden" },
+          "409": { "description": "Conflict" }
+        }
+      }
+    },
+    "/dbs/{db-id}": {
+      "get": {
+        "tags": [ "Database" ],
+        "summary": "Retrieve a database resource by Id",
+        "description": "Retrieve a database resource by Id",
+        "operationId": "Databases_FindById",
+        "consumes": [ ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "The Database ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The operation was successful.",
+            "schema": { "$ref": "#/definitions/Database" }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token expired." },
+          "404": { "description": "The database is no longer a resource, i.e. the resource was deleted." }
+        }
+      },
+      "delete": {
+        "tags": [ "Database" ],
+        "summary": "Delete a Database",
+        "description": "Delete a Database",
+        "operationId": "Databases_Delete",
+        "consumes": [ ],
+        "produces": [ ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "The Database ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "204": { "description": "The delete operation was successful." },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token." },
+          "403": { "description": "The authorization token expired." },
+          "404": { "description": "The database to be deleted is no longer a resource, i.e. the resource was already deleted." }
+        }
+      }
+    },
+    "/dbs/{db-id}/users": {
+      "post": {
+        "tags": [ "User" ],
+        "summary": "Create a User",
+        "description": "**Create a new User**\n- A new user can be created under the database by executing an HTTPS POST request against the URI resource path colls",
+        "operationId": "Users_Create",
+        "consumes": [ "application/json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "The Database ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          },
+          {
+            "name": "user",
+            "description": "A user information instance, containing its id and, optionally, and indexing policy.",
+            "in": "body",
+            "required": true,
+            "schema": { "$ref": "#/definitions/User" }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": { "$ref": "#/definitions/User" }
+          },
+          "400": { "description": "The override set in the x-ms-consistency-level header is stronger than the one set during account creation." },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token expired." },
+          "404": { "description": "The user is no longer a resource, i.e. the resource was deleted." },
+          "409": { "description": "The user already exists." }
+        }
+      },
+      "get": {
+        "tags": [ "User" ],
+        "summary": "List Users",
+        "description": "**List Users**\n- Performing a GET on the user resource of a particular database, i.e. the colls URI path, returns a list of the users in the database",
+        "operationId": "Users_List",
+        "consumes": [ ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "The Database ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The operation was successful.",
+            "schema": {
+              "$ref": "#/definitions/UserList"
+            }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. 401 is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token has expired" }
+        }
+      }
+    },
+    "/dbs/{db-id}/users/{user-name}": {
+      "get": {
+        "tags": [ "User" ],
+        "summary": "Get a User",
+        "description": "**Get a User BY ID**\n- Performing a GET on a specific user resource retrieves the properties for the user.",
+        "operationId": "Users_FindById",
+        "consumes": [ ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user-name",
+            "x-ms-client-name": "user",
+            "in": "path",
+            "description": "A user name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The operation was successful.",
+            "schema": { "$ref": "#/definitions/User" }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token has expired" },
+          "404": { "description": "The user is no longer a resource, i.e. the user was deleted" }
+        }
+      },
+      "delete": {
+        "tags": [ "User" ],
+        "summary": "Delete a User",
+        "description": "**Delete a User**\n- Performing a DELETE on a specific user resource deletes the user resource and its permissions.",
+        "operationId": "Users_Delete",
+        "consumes": [ ],
+        "produces": [ ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user-name",
+            "x-ms-client-name": "user",
+            "in": "path",
+            "description": "A user name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "204": { "description": "The delete operation was successful" },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token has expired" },
+          "404": { "description": "The user to be deleted is no longer a resource, i.e. the user was deleted" }
+        }
+      }
+    },
+    "/dbs/{db-id}/users/{user-name}/permissions": {
+      "post": {
+        "tags": [ "Permission" ],
+        "summary": "Create a Permission",
+        "description": "**Create a new Permission**\n- A new permission can be created under the database by executing an HTTPS POST request against the URI resource path colls",
+        "operationId": "Permissions_Create",
+        "consumes": [ "application/json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "The Database ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user-name",
+            "x-ms-client-name": "user",
+            "in": "path",
+            "description": "A user name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          },
+          {
+            "name": "permission",
+            "description": "A permission information instance, containing its id and, optionally, and indexing policy.",
+            "in": "body",
+            "required": true,
+            "schema": { "$ref": "#/definitions/Permission" }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": { "$ref": "#/definitions/Permission" }
+          },
+          "400": { "description": "The override set in the x-ms-consistency-level header is stronger than the one set during account creation." },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token expired." },
+          "404": { "description": "The permission is no longer a resource, i.e. the resource was deleted." },
+          "409": { "description": "The permission already exists." }
+        }
+      },
+      "get": {
+        "tags": [ "Permission" ],
+        "summary": "List Permissions",
+        "description": "**List Permissions**\n- Performing a GET on the permission resource of a particular database, i.e. the colls URI path, returns a list of the permissions in the database",
+        "operationId": "Permissions_List",
+        "consumes": [ ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "The Database ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user-name",
+            "x-ms-client-name": "user",
+            "in": "path",
+            "description": "A user name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The operation was successful.",
+            "schema": {
+              "$ref": "#/definitions/PermissionList"
+            }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. 401 is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token has expired" }
+        }
+      }
+    },
+    "/dbs/{db-id}/users/{user-name}/permissions/{permission-name}": {
+      "get": {
+        "tags": [ "Permission" ],
+        "summary": "Get a Permission",
+        "description": "**Get a Permission BY ID**\n- Performing a GET on a specific permission resource retrieves the properties for the permission.",
+        "operationId": "Permissions_FindById",
+        "consumes": [ ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user-name",
+            "x-ms-client-name": "user",
+            "in": "path",
+            "description": "A user name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "permission-name",
+            "x-ms-client-name": "permission",
+            "in": "path",
+            "description": "A permission name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The operation was successful.",
+            "schema": { "$ref": "#/definitions/Permission" }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token has expired" },
+          "404": { "description": "The permission is no longer a resource, i.e. the permission was deleted" }
+        }
+      },
+      "delete": {
+        "tags": [ "Permission" ],
+        "summary": "Delete a Permission",
+        "description": "**Delete a Permission**\n- Performing a DELETE on a specific permission resource deletes the permission resource and its permissions.",
+        "operationId": "Permissions_Delete",
+        "consumes": [ ],
+        "produces": [ ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "user-name",
+            "x-ms-client-name": "user",
+            "in": "path",
+            "description": "A user name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "permission-name",
+            "x-ms-client-name": "permission",
+            "in": "path",
+            "description": "A permission name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "204": { "description": "The delete operation was successful" },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token has expired" },
+          "404": { "description": "The permission to be deleted is no longer a resource, i.e. the permission was deleted" }
+        }
+      }
+    },
+    "/dbs/{db-id}/colls": {
+      "post": {
+        "tags": [ "User" ],
+        "summary": "Create a Collection",
+        "description": "**Create a new Collection**\n- A new collection can be created under the database by executing an HTTPS POST request against the URI resource path colls",
+        "operationId": "Collections_Create",
+        "consumes": [ "application/json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "The Database ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          },
+          {
+            "name": "collection",
+            "description": "A collection information instance, containing its id and, optionally, and indexing policy.",
+            "in": "body",
+            "required": true,
+            "schema": { "$ref": "#/definitions/Collection" }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": { "$ref": "#/definitions/Collection" }
+          },
+          "400": { "description": "The override set in the x-ms-consistency-level header is stronger than the one set during account creation." },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token expired." },
+          "404": { "description": "The document is no longer a resource, i.e. the resource was deleted." }
+        }
+      },
+      "get": {
+        "tags": [ "Collection" ],
+        "summary": "List Collections",
+        "description": "**List Collections**\n- Performing a GET on the collections resource of a particular database, i.e. the colls URI path, returns a list of the users in the database",
+        "operationId": "Collections_List",
+        "consumes": [ ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "The Database ID",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The operation was successful.",
+            "schema": {
+              "$ref": "#/definitions/CollectionList"
+            }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. 401 is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token has expired" }
+        }
+      }
+    },
+    "/dbs/{db-id}/colls/{coll-id}": {
+      "get": {
+        "tags": [ "Collection" ],
+        "summary": "Get a Collection",
+        "description": "**Get a Collection BY ID**\n- Performing a GET on a specific collection resource retrieves the properties for the collection.",
+        "operationId": "Collections_FindById",
+        "consumes": [ ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The operation was successful.",
+            "schema": { "$ref": "#/definitions/Collection" }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token has expired" },
+          "404": { "description": "The collection is no longer a resource, i.e. the collection was deleted" }
+        }
+      },
+      "delete": {
+        "tags": [ "Collection" ],
+        "summary": "Delete a Collection",
+        "description": "**Delete a Collection**\n- Performing a DELETE on a specific user resource deletes the user resource and its permissions.",
+        "operationId": "Collections_Delete",
+        "consumes": [ ],
+        "produces": [ ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "204": { "description": "The delete operation was successful" },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token has expired" },
+          "404": { "description": "The collection to be deleted is no longer a resource, i.e. the collection was deleted" }
+        }
+      }
+    },
+    "/dbs/{db-id}/colls/{coll-id}/docs": {
+      "get": {
+        "tags": [ "Documents" ],
+        "summary": "List documents",
+        "description": "List documents given a collection and a database.",
+        "operationId": "Documents_List",
+        "consumes": [ "application/query+json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": { "$ref": "#/definitions/DocumentList" }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token expired." },
+          "404": { "description": "The collection is no longer a resource, i.e. the resource was deleted." }
+        }
+      },
+      "post": {
+        "tags": [ "Document" ],
+        "summary": "Create a Document",
+        "description": "**Create a new Document** - Documents are automatically indexed. If automatic indexing is turned off at the collection level, documents can be manually included or excluded from being indexed by using the x-ms-indexing-directive header during the POST operation .Documents must adhere to size limits, as specified in [DocumentDB Limits.](http://azure.microsoft.com/documentation/articles/documentdb-limits/)",
+        "operationId": "Documents_Create",
+        "consumes": [ "application/json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          },
+          {
+            "in": "body",
+            "name": "document",
+            "required": true,
+            "schema": { "$ref": "#/definitions/Document" },
+            "description": "The document data, formatted in JSON"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": { "$ref": "#/definitions/Document" }
+          },
+          "400": { "description": "The override set in the x-ms-consistency-level header is stronger than the one set during account creation." },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token expired." },
+          "404": { "description": "The document is no longer a resource, i.e. the resource was deleted." }
+        }
+      }
+    },
+    "/dbs/{db-id}/colls/{coll-id}/docs/{doc-name}": {
+      "get": {
+        "tags": [ "Documents" ],
+        "summary": "Get a document",
+        "description": "**Get a document BY ID** - Performing a GET on a specific document resource retrieves the properties for the document.",
+        "operationId": "Documents_FindById",
+        "consumes": [ ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "doc-name",
+            "x-ms-client-name": "documentName",
+            "in": "path",
+            "description": "A document name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The operation was successful.",
+            "schema": { "$ref": "#/definitions/Document" }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token has expired" },
+          "404": { "description": "The document is no longer a resource, i.e. the document was deleted" }
+        }
+      },
+      "put": {
+        "tags": [ "Documents" ],
+        "summary": "Get a document",
+        "description": "**Get a document BY ID**\n- Performing a GET on a specific document resource retrieves the properties for the document.",
+        "operationId": "Documents_Replace",
+        "consumes": [ ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "doc-name",
+            "x-ms-client-name": "documentName",
+            "in": "path",
+            "description": "A document name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          },
+          {
+            "in": "body",
+            "name": "document",
+            "required": true,
+            "schema": { "$ref": "#/definitions/Document" },
+            "description": "The document data, formatted in JSON"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The operation was successful.",
+            "schema": { "$ref": "#/definitions/Document" }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token has expired" },
+          "404": { "description": "The document is no longer a resource, i.e. the document was deleted" }
+        }
+      },
+      "delete": {
+        "tags": [ "Documents" ],
+        "summary": "Delete a document",
+        "description": "**Delete a document**\n- Performing a DELETE on a specific document resource deletes the document resource and its attachments.",
+        "operationId": "Documents_Delete",
+        "consumes": [ ],
+        "produces": [ ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "doc-name",
+            "x-ms-client-name": "documentName",
+            "in": "path",
+            "description": "A document name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "204": { "description": "The delete operation was successful" },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token has expired" },
+          "404": { "description": "The document to be deleted is no longer a resource, i.e. the document was deleted" }
+        }
+      }
+    },
+    "/dbs/{db-id}/colls/{coll-id}/udfs": {
+      "get": {
+        "tags": [ "UDFs" ],
+        "summary": "List UDFs",
+        "description": "List all user-defined functions in a given database collection",
+        "operationId": "UserDefinedFunctions_List",
+        "consumes": [ "application/query+json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": { "$ref": "#/definitions/FunctionList" }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token expired." },
+          "404": { "description": "The collection is no longer a resource, i.e. the resource was deleted." }
+        }
+      },
+      "post": {
+        "tags": [ "UDF" ],
+        "summary": "Create a user-defined function",
+        "description": "**Create a new user-defined function** - A new user-defined function can be created under a collection by executing an HTTPS POST request against the URI resource path udfs.",
+        "operationId": "UserDefinedFunctions_Create",
+        "consumes": [ "application/json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          },
+          {
+            "in": "body",
+            "name": "function",
+            "required": true,
+            "schema": { "$ref": "#/definitions/Function" },
+            "description": "The JavaScript code defining the user-defined function."
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": { "$ref": "#/definitions/Function" }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token expired." },
+          "404": { "description": "The user-defined function is no longer a resource, i.e. the resource was deleted." }
+        }
+      }
+    },
+    "/dbs/{db-id}/colls/{coll-id}/udfs/{udf-name}": {
+      "get": {
+        "tags": [ "UDFs" ],
+        "summary": "Replace a user-defined function",
+        "description": "**Get the data on a user-defined function by its ID**\n",
+        "operationId": "UserDefinedFunctions_FindById",
+        "consumes": [ ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "udf-name",
+            "x-ms-client-name": "name",
+            "in": "path",
+            "description": "A user-defined function name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The operation was successful.",
+            "schema": { "$ref": "#/definitions/Function" }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token has expired" },
+          "404": { "description": "The user-defined function is no longer a resource, i.e. the user-defined function was deleted" }
+        }
+      },
+      "put": {
+        "tags": [ "UDFs" ],
+        "summary": "Replace a UDF",
+        "description": "**Replace a user-defined function by its ID**\n",
+        "operationId": "UserDefinedFunctions_Replace",
+        "consumes": [ ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "udf-name",
+            "x-ms-client-name": "name",
+            "in": "path",
+            "description": "A user-defined function name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          },
+          {
+            "in": "body",
+            "name": "function",
+            "required": true,
+            "schema": { "$ref": "#/definitions/Function" },
+            "description": "The JavaScript code defining the user-defined function."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The operation was successful.",
+            "schema": { "$ref": "#/definitions/Function" }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token has expired" },
+          "404": { "description": "The user-defined function is no longer a resource, i.e. the user-defined function was deleted" }
+        }
+      },
+      "delete": {
+        "tags": [ "UDFs" ],
+        "summary": "Delete a UDF",
+        "description": "**Delete a user-defined function**\n- Performing a DELETE on a specific user-defined function resource deletes the user-defined function resource.",
+        "operationId": "UserDefinedFunctions_Delete",
+        "consumes": [ ],
+        "produces": [ ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "udf-name",
+            "x-ms-client-name": "name",
+            "in": "path",
+            "description": "A user-defined function name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "204": { "description": "The delete operation was successful" },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token has expired" },
+          "404": { "description": "The user-defined function to be deleted is no longer a resource, i.e. the user-defined function was deleted" }
+        }
+      }
+    },
+    "/dbs/{db-id}/colls/{coll-id}/sprocs": {
+      "get": {
+        "tags": [ "Stored Procedures" ],
+        "summary": "List Stored Procedures",
+        "description": "List all stored procedures in a database collection",
+        "operationId": "StoredProcedures_List",
+        "consumes": [ "application/query+json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": { "$ref": "#/definitions/StoredProcedureList" }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token expired." },
+          "404": { "description": "The collection is no longer a resource, i.e. the resource was deleted." }
+        }
+      },
+      "post": {
+        "tags": [ "Stored Procedures" ],
+        "summary": "Create a Stored Procedure",
+        "description": "**Create a new stored procedure** - A new stored procedure can be created under a collection by executing an HTTPS POST request against the URI resource path udfs.",
+        "operationId": "StoredProcedures_Create",
+        "consumes": [ "application/json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          },
+          {
+            "in": "body",
+            "name": "function",
+            "required": true,
+            "schema": { "$ref": "#/definitions/StoredProcedure" },
+            "description": "The stored procedure body."
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": { "$ref": "#/definitions/StoredProcedure" }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token expired." },
+          "404": { "description": "The stored procedure is no longer a resource, i.e. the resource was deleted." }
+        }
+      }
+    },
+    "/dbs/{db-id}/colls/{coll-id}/sprocs/{sproc-name}": {
+      "get": {
+        "tags": [ "Stored Procedures" ],
+        "summary": "Replace a Stored Procedure",
+        "description": "**Replace a stored procedure by its ID**\n",
+        "operationId": "StoredProcedures_FindById",
+        "consumes": [ ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "sproc-name",
+            "x-ms-client-name": "name",
+            "in": "path",
+            "description": "A user-defined function name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The operation was successful.",
+            "schema": { "$ref": "#/definitions/StoredProcedure" }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token has expired" },
+          "404": { "description": "The UDF is no longer a resource, i.e. the UDF was deleted" }
+        }
+      },
+      "put": {
+        "tags": [ "Stored Procedures" ],
+        "summary": "Replace a stored procedure",
+        "description": "**Replace a stored procedure by its ID**\n",
+        "operationId": "StoredProcedures_Replace",
+        "consumes": [ ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "sproc-name",
+            "x-ms-client-name": "name",
+            "in": "path",
+            "description": "A user-defined function name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          },
+          {
+            "in": "body",
+            "name": "function",
+            "required": true,
+            "schema": { "$ref": "#/definitions/StoredProcedure" },
+            "description": "The stored procedure body."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The operation was successful.",
+            "schema": { "$ref": "#/definitions/StoredProcedure" }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token has expired" },
+          "404": { "description": "The UDF is no longer a resource, i.e. the UDF was deleted" }
+        }
+      },
+      "post": {
+        "tags": [ "Stored Procedures" ],
+        "summary": "Replace a stored procedure",
+        "description": "**Replace a stored procedure by its ID**\n",
+        "operationId": "StoredProcedures_Execute",
+        "consumes": [ ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "sproc-name",
+            "x-ms-client-name": "name",
+            "in": "path",
+            "description": "A stored procedure name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          },
+          {
+            "in": "body",
+            "name": "parameters",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": { "type": "string" },
+              "description": "An array of parameters for the stored procedure."
+            },
+            "description": "An array of parameters for the stored procedure."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The operation was successful.",
+            "schema": { "type": "string", "description": "The operation was successful." }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token has expired" },
+          "404": { "description": "The UDF is no longer a resource, i.e. the UDF was deleted" }
+        }
+      },
+      "delete": {
+        "tags": [ "Stored Procedures" ],
+        "summary": "Delete a Stored Procedure",
+        "description": "**Delete a stored procedure**\n- Performing a DELETE on a specific stored procedure resource deletes the resource.",
+        "operationId": "StoredProcedures_Delete",
+        "consumes": [ ],
+        "produces": [ ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "sproc-name",
+            "x-ms-client-name": "name",
+            "in": "path",
+            "description": "A stored procedure name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "204": { "description": "The delete operation was successful" },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token has expired" },
+          "404": { "description": "The stored procedure to be deleted is no longer a resource, i.e. it was never created or already deleted" }
+        }
+      }
+    },
+    "/dbs/{db-id}/colls/{coll-id}/triggers": {
+      "get": {
+        "tags": [ "Triggers" ],
+        "summary": "Query for Triggers",
+        "description": "List all trigger functions in a given database collection.",
+        "operationId": "Triggers_List",
+        "consumes": [ "application/query+json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": { "$ref": "#/definitions/TriggerList" }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token expired." },
+          "404": { "description": "The trigger is no longer a resource, i.e. the resource was deleted." }
+        }
+      },
+      "post": {
+        "tags": [ "Trigger" ],
+        "summary": "Create a trigger",
+        "description": "**Create a new trigger** - A new trigger can be created under a collection by executing an HTTPS POST request against the URI resource path udfs.",
+        "operationId": "Triggers_Create",
+        "consumes": [ "application/json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          },
+          {
+            "in": "body",
+            "name": "function",
+            "required": true,
+            "schema": { "$ref": "#/definitions/Trigger" },
+            "description": "The trigger function body."
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Success",
+            "schema": { "$ref": "#/definitions/Trigger" }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token expired." },
+          "404": { "description": "The trigger is no longer a resource, i.e. the resource was deleted." }
+        }
+      }
+    },
+    "/dbs/{db-id}/colls/{coll-id}/triggers/{trigger-name}": {
+      "get": {
+        "tags": [ "Triggers" ],
+        "summary": "Find a Trigger by its ID",
+        "description": "**Get the data on a trigger by its ID**\n",
+        "operationId": "Triggers_FindById",
+        "consumes": [ ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "trigger-name",
+            "x-ms-client-name": "name",
+            "in": "path",
+            "description": "A trigger name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The operation was successful.",
+            "schema": { "$ref": "#/definitions/Trigger" }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token has expired" },
+          "404": { "description": "The trigger is no longer a resource, i.e. the trigger was deleted" }
+        }
+      },
+      "put": {
+        "tags": [ "Triggers" ],
+        "summary": "Replace a Trigger",
+        "description": "**Replace a trigger by its ID**\n",
+        "operationId": "Triggers_Replace",
+        "consumes": [ ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "trigger-name",
+            "x-ms-client-name": "name",
+            "in": "path",
+            "description": "A trigger name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          },
+          {
+            "in": "body",
+            "name": "function",
+            "required": true,
+            "schema": { "$ref": "#/definitions/Trigger" },
+            "description": "The trigger function body."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The operation was successful.",
+            "schema": { "$ref": "#/definitions/Function" }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token has expired" },
+          "404": { "description": "The trigger is no longer a resource, i.e. the trigger was deleted" }
+        }
+      },
+      "delete": {
+        "tags": [ "Triggers" ],
+        "summary": "Delete a Trigger",
+        "description": "**Delete a trigger**\n- Performing a DELETE on a specific trigger resource deletes the trigger resource.",
+        "operationId": "Triggers_Delete",
+        "consumes": [ ],
+        "produces": [ ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "trigger-name",
+            "x-ms-client-name": "name",
+            "in": "path",
+            "description": "A trigger name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          }
+        ],
+        "responses": {
+          "204": { "description": "The delete operation was successful" },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token has expired" },
+          "404": { "description": "The trigger to be deleted is no longer a resource, i.e. the trigger was deleted" }
+        }
+      }
+    }
+  },
+  "x-ms-paths": {
+    "/dbs/{db-id}/colls/{coll-id}/docs?query=yes": {
+      "post": {
+        "tags": [ "Document" ],
+        "summary": "Query for documents",
+        "description": "Query for documents",
+        "operationId": "Documents_FindByQuery",
+        "consumes": [ "application/query+json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "db-id",
+            "x-ms-client-name": "databaseId",
+            "in": "path",
+            "description": "A database id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "coll-id",
+            "x-ms-client-name": "collection",
+            "in": "path",
+            "description": "A collection id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-ms-version",
+            "type": "string",
+            "in": "header",
+            "required": true,
+            "x-ms-client-name": "version",
+            "default": "2015-08-06",
+            "description": "The API version targeted by the request",
+            "enum": [ "2015-08-06" ]
+          },
+          {
+            "name": "x-ms-documentdb-isquery",
+            "x-ms-client-name": "isQuery",
+            "type": "boolean",
+            "in": "header",
+            "required": true,
+            "default": true,
+            "enum": [ true ],
+            "description": "A flag indicating that this will be treated as a query."
+          },
+          {
+            "in": "body",
+            "name": "document",
+            "required": true,
+            "description": "The query expressed as a JSON document",
+            "schema": { "$ref": "#/definitions/Query" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": { "$ref": "#/definitions/DocumentList" }
+          },
+          "401": { "description": "The Authorization or x-ms-date header is not set. <c>401</c> is also returned when the Authorization header is set to an invalid authorization token" },
+          "403": { "description": "The authorization token expired." },
+          "404": { "description": "The document is no longer a resource, i.e. the resource was deleted." }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "DatabaseList": {
+      "description": "A list of databases, returned from the service",
+      "properties": {
+        "_rid": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property.\nThe _rid value is empty for this operation."
+        },
+        "_count": {
+          "type": "integer",
+          "readOnly": true,
+          "default": 0,
+          "description": "This property shows the number of databases returned."
+        },
+        "Databases": {
+          "type": "array",
+          "readOnly": true,
+          "description": "A list of databases.",
+          "items": { "$ref": "#/definitions/Database" }
+        }
+      }
+    },
+    "Database": {
+      "description": "Information related to a single database.",
+      "required": [ "id" ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The user generated unique name for the database, a string that\n must not be more than 255 characters."
+        },
+        "_rid": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property.\nThe resource id (_rid) is a unique identifier that is also hierarchical per the resource stack on the resource model. It is used internally for placement of and navigation to the database resource."
+        },
+        "_ts": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property.\nIt specifies the last updated timestamp of the resource. The value is a timestamp."
+        },
+        "_self": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property.\nIt is the unique addressable URI for the resource."
+        },
+        "_etag": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property.\nIt represents the resource etag required for optimistic concurrency control."
+        },
+        "_colls": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property.\nIt specifies the addressable path of the collections resource."
+        },
+        "_users": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property.\nIt specifies the addressable path of the users resource."
+        }
+      }
+    },
+    "UserList": {
+      "properties": {
+        "_rid": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property.\nThe _rid value is empty for this operation."
+        },
+        "_count": {
+          "type": "integer",
+          "readOnly": true,
+          "default": 0,
+          "description": "This property shows the number of document collections returned."
+        },
+        "Users": {
+          "type": "array",
+          "readOnly": true,
+          "description": "This the array containing the collections returned as part of the list operation.",
+          "items": { "$ref": "#/definitions/User" }
+        }
+      },
+      "description": "A list of users, returned from the service"      
+    },
+    "User": {
+      "required": [ "id" ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The user-generated unique name for the collection. No two collections can have the same ids. This is a string that must not be more than 255 characters."
+        },
+        "_rid": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property. The resource ID (_rid) is a unique identifier that is also hierarchical per the resource stack on the resource model. It is used internally for placement and navigation of the collection resource."
+        },
+        "_ts": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property. It specifies the last updated timestamp of the resource. The value is a timestamp."
+        },
+        "_self": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property. It is the unique addressable URI for the resource."
+        },
+        "_etag": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property that specifies the resource etag required for optimistic concurrency control."
+        },
+        "_permissions": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property that specifies the addressable path of the conflicts resource. During an operation on a resource within a collection, if a conflict occurs, users can inspect the conflicting resources by performing a GET on the conflicts URI path."
+        }
+      },
+      "description": "Represents a user of the database."
+    },
+    "PermissionList": {
+      "properties": {
+        "_rid": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property.\nThe _rid value is empty for this operation."
+        },
+        "_count": {
+          "type": "integer",
+          "readOnly": true,
+          "default": 0,
+          "description": "This property shows the number of permissions returned."
+        },
+        "Permissions": {
+          "type": "array",
+          "readOnly": true,
+          "description": "This the array containing the collections returned as part of the list operation.",
+          "items": { "$ref": "#/definitions/Permission" }
+        }
+      },
+      "description": "A list of permissions, returned from the service"
+    },
+    "Permission": {
+      "required": [ "id", "permissionMode", "resource" ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "This is a unique name that identifies the permission, i.e. no two permissions owned by a user can share the same id. The id must not exceed 255 characters."
+        },
+        "permissionMode": {
+          "type": "string",
+          "enum": [ "All", "Read" ],
+          "description": "The access mode on the resource for the user: All or Read. All provides read, write and delete access to a resource. Read restricts the user to read access on the resource.",
+          "x-ms-enum": {
+            "name": "PermissionModes"
+          }
+        },
+        "resource": {
+          "type": "string",
+          "description": "The full addressable path of the resource associated with the permission. For example, dbs/ruJjAA==/colls/ruJjAM9UnAA=/."
+        },
+        "_rid": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property. The resource ID (_rid) is a unique identifier that is also hierarchical per the resource stack on the resource model. It is used internally for placement and navigation of the collection resource."
+        },
+        "_ts": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property. It specifies the last updated timestamp of the resource. The value is a timestamp."
+        },
+        "_self": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property. It is the unique addressable URI for the resource."
+        },
+        "_etag": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property that specifies the resource etag required for optimistic concurrency control."
+        },
+        "_token": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property that specifies the resource etag required for optimistic concurrency control."
+        }
+      },
+      "description": "A set of permissions related to a user and database/collection"
+    },
+    "CollectionList": {
+      "properties": {
+        "_rid": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property.\nThe _rid value is empty for this operation."
+        },
+        "_count": {
+          "type": "integer",
+          "readOnly": true,
+          "default": 0,
+          "description": "This property shows the number of document collections returned."
+        },
+        "DocumentCollections": {
+          "type": "array",
+          "readOnly": true,
+          "description": "This the array containing the collections returned as part of the list operation.",
+          "items": { "$ref": "#/definitions/Collection" }
+        }
+      },
+      "description": "A list of colletions, returned from the service"
+    },
+    "Collection": {
+      "required": [ "id" ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The user-generated unique name for the collection. No two collections can have the same ids. This is a string that must not be more than 255 characters."
+        },
+        "indexingPolicy": {
+          "type": "object",
+          "description": "This is the indexing policy setting for the collection. All properties in the indexingPolicy are user settable.",
+          "$ref": "#/definitions/IndexingPolicy"
+        },
+        "_rid": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property. The resource ID (_rid) is a unique identifier that is also hierarchical per the resource stack on the resource model. It is used internally for placement and navigation of the collection resource."
+        },
+        "_ts": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property. It specifies the last updated timestamp of the resource. The value is a timestamp."
+        },
+        "_self": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property. It is the unique addressable URI for the resource."
+        },
+        "_etag": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property that specifies the resource etag required for optimistic concurrency control."
+        },
+        "_doc": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property that specifies the addressable path of the documents resource."
+        },
+        "_sprocs": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property that specifies the addressable path of the stored procedures (sprocs) resource."
+        },
+        "_triggers": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property that specifies the addressable path of the triggers resource"
+        },
+        "_udfs": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property that specifies the addressable path of the user-defined functions (udfs) resource."
+        },
+        "_conflicts": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property that specifies the addressable path of the conflicts resource. During an operation on a resource within a collection, if a conflict occurs, users can inspect the conflicting resources by performing a GET on the conflicts URI path."
+        }
+      },
+      "description": "A collection is a container of JSON documents and associated JavaScript application logic, i.e. stored procedures, triggers and user-defined functions"
+    },
+    "DocumentList": {
+      "properties": {
+        "_rid": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property.\nThe _rid value is empty for this operation."
+        },
+        "_count": {
+          "type": "integer",
+          "readOnly": true,
+          "default": 0,
+          "description": "This property shows the number of documents returned."
+        },
+        "Documents": {
+          "type": "array",
+          "readOnly": true,
+          "description": "This the array containing the documents returned as part of the list operation.",
+          "items": { "$ref": "#/definitions/Document" }
+        }
+      },
+      "description": "A list of dcouments, returned from the service"
+    },
+    "Document": {
+      "type": "object",
+      "required": [ "id" ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "The user-generated unique name for the collection. No two collections can have the same ids. This is a string that must not be more than 255 characters."
+        },
+        "_rid": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property. The resource ID (_rid) is a unique identifier that is also hierarchical per the resource stack on the resource model. It is used internally for placement and navigation of the collection resource."
+        },
+        "_ts": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property. It specifies the last updated timestamp of the resource. The value is a timestamp."
+        },
+        "_self": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property. It is the unique addressable URI for the resource."
+        },
+        "_etag": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property that specifies the resource etag required for optimistic concurrency control."
+        },
+        "_attachments": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property that specifies the addressable path for the attachments resource."
+        }
+      },
+      "additionalProperties": {
+        "type": "object"
+      },
+      "description": "A document, that is, a structured document of JSON data."
+    },
+    "FunctionList": {
+      "properties": {
+        "_rid": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property.\nThe _rid value is empty for this operation."
+        },
+        "_count": {
+          "type": "integer",
+          "readOnly": true,
+          "default": 0,
+          "description": "This property shows the number of documents returned."
+        },
+        "UserDefinedFunctions": {
+          "type": "array",
+          "readOnly": true,
+          "description": "This the array containing the user-defined functions returned as part of the list operation.",
+          "items": { "$ref": "#/definitions/Function" }
+        }
+      },
+      "description": "A list of functions, returned from the service"
+    },
+    "Function": {
+      "type": "object",
+      "required": [ "id", "body" ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "This is a unique name to identify the UDF. The id must not exceed 255 characters."
+        },
+        "body": {
+          "type": "string",
+          "description": "This is the body of the UDF."
+        },
+        "_rid": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property. The resource ID (_rid) is a unique identifier that is also hierarchical per the resource stack on the resource model. It is used internally for placement and navigation of the collection resource."
+        },
+        "_ts": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property. It specifies the last updated timestamp of the resource. The value is a timestamp."
+        },
+        "_self": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property. It is the unique addressable URI for the resource."
+        },
+        "_etag": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property that specifies the resource etag required for optimistic concurrency control."
+        }
+      },
+      "description": "A user-defined function's data."
+    },
+    "StoredProcedureList": {
+      "properties": {
+        "_rid": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property.\nThe _rid value is empty for this operation."
+        },
+        "_count": {
+          "type": "integer",
+          "readOnly": true,
+          "default": 0,
+          "description": "This property shows the number of documents returned."
+        },
+        "StoredProcedures": {
+          "type": "array",
+          "readOnly": true,
+          "description": "This the array containing the user-defined functions returned as part of the list operation.",
+          "items": { "$ref": "#/definitions/StoredProcedure" }
+        }
+      },
+      "description": "A list of stored procedures, returned from the service"
+    },
+    "StoredProcedure": {
+      "type": "object",
+      "required": [ "id", "body" ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "This is a unique name to identify the stored procedure. The id must not exceed 255 characters."
+        },
+        "body": {
+          "type": "string",
+          "description": "This is the body of the stored procedure."
+        },
+        "_rid": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property. The resource ID (_rid) is a unique identifier that is also hierarchical per the resource stack on the resource model. It is used internally for placement and navigation of the collection resource."
+        },
+        "_ts": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property. It specifies the last updated timestamp of the resource. The value is a timestamp."
+        },
+        "_self": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property. It is the unique addressable URI for the resource."
+        },
+        "_etag": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property that specifies the resource etag required for optimistic concurrency control."
+        }
+      },
+      "description": "A stored procedure's data."
+    },
+    "StoredProcedureParameters": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Parameters to a stored procedure"
+    },
+    "TriggerList": {
+      "properties": {
+        "_rid": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property.\nThe _rid value is empty for this operation."
+        },
+        "_count": {
+          "type": "integer",
+          "readOnly": true,
+          "default": 0,
+          "description": "This property shows the number of triggers returned."
+        },
+        "UserDefinedFunctions": {
+          "type": "array",
+          "readOnly": true,
+          "description": "This the array containing the trigger returned as part of the list operation.",
+          "items": { "$ref": "#/definitions/Trigger" }
+        }
+      },
+      "description": "A list of trigger functions, returned from the service"
+    },
+    "Trigger": {
+      "type": "object",
+      "required": [ "id", "body", "triggerOperation", "triggerType" ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "This is a unique name to identify the trigger. The id must not exceed 255 characters."
+        },
+        "body": {
+          "type": "string",
+          "description": "This is the body of the trigger."
+        },
+        "triggerOperation": {
+          "type": "string",
+          "description": "The type of operation that will invoke the trigger. The acceptable values are: All, Insert, Replace and Delete.",
+          "enum": [ "All", "Insert", "Replace", "Delete" ],
+          "x-ms-enum": {
+            "name": "TriggerOperations"
+          }
+        },
+        "triggerType": {
+          "type": "string",
+          "description": "Specifies when the trigger will be fired. The acceptable values are: Pre and Post. Pre triggers fire before an operation while Post triggers after an operation.",
+          "enum": [ "Pre", "Post" ],
+          "x-ms-enum": {
+            "name": "TriggerTypes"
+          }
+        },
+
+        "_rid": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property. The resource ID (_rid) is a unique identifier that is also hierarchical per the resource stack on the resource model. It is used internally for placement and navigation of the collection resource."
+        },
+        "_ts": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property. It specifies the last updated timestamp of the resource. The value is a timestamp."
+        },
+        "_self": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property. It is the unique addressable URI for the resource."
+        },
+        "_etag": {
+          "type": "string",
+          "readOnly": true,
+          "description": "This is a system generated property that specifies the resource etag required for optimistic concurrency control."
+        }
+      },
+      "description": "A trigger function's data."
+    },
+    "Query": {
+      "type": "object",
+      "required": [ "query", "parameters" ],
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "The query string"
+        },
+        "parameters": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/Parameter" },        
+          "description": "The query parameters"
+        }
+      },
+      "description": "A query"
+    },
+    "Parameter": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      },
+      "description": "A parameter"
+    },
+    "IndexingPolicy": {
+      "required": [ "ExcludePaths", "IncludePaths", "Path", "automatic", "indexingMode" ],
+      "properties": {
+        "automatic": {
+          "type": "boolean",
+          "description": "True indicates that automatic indexing is on; otherwise, False.\nThe default value is True, thus all documents are indexed by default. Documents can be excluded by specifying the x-ms-indexingdirective header value to “Exclude”.\nSetting the value to False allows no documents are indexed. Documents can be included by specifying the x-ms-indexingdirective header value to “Include”.",
+          "default": true
+        },
+        "indexingMode": {
+          "type": "string",
+          "description": "By default, the indexing mode is consistent. This means that indexing occurs synchronously during insertion, replacement or deletion of documents, and queries are served at the same consistency level as configured in the request.\nTo have indexing occur asynchronously, set the indexing mode to lazy. With lazy indexing, the index is updated when the collection is operating below its request units per second capacity."
+        },
+        "Path": {
+          "type": "string",
+          "description": "The accepted value is a valid document path including wildcards value of ? and *."
+        },
+        "IncludePaths": {
+          "type": "array",
+          "description": "The array containing the document paths to be indexed. All properties are user settable.",
+          "items": { "$ref": "#/definitions/IncludePath" }
+        },
+        "ExcludePaths": {
+          "type": "array",
+          "description": "The array containing the document paths to be excluded from indexing. All properties are user settable.",
+          "items": { "$ref": "#/definitions/ExcludePath" }
+        }
+      },
+      "description": "As documents are added to a collection, DocumentDB by default automatically indexes the documents, thus allowing documents to be queried. It is at the collection level that you configure the indexing policy. Since indexing policy is set at the collection level, each collection within a database can have different indexing policies."
+    },
+    "IncludePath": {
+      "required": [ "Path" ],
+      "properties": {
+        "indexType": {
+          "type": "string",
+          "description": "The acceptable values are Hash or Range. Hash indexes are useful for equality comparisons while Range indexes are useful for range comparison. At the moment, range indexes can only be used for numeric values.  The default value is Hash for document paths and Range for a _ts path."
+        },
+        "NumericPrecision": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The acceptable values are 1 to 7. The default value is 3. This is the byte precision value for numeric values. The higher this value is set, the lower the probability of term collision, resulting in a faster and more accurate comparison. However, the higher the value the greater the storage overhead."
+        },
+        "StringPrecision": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The acceptable values are 1 to 7. The default value is 3. This is the byte precision value for strings. The higher this value is set, the lower the probability of term collision, resulting in a faster and more accurate comparison. However, the higher the value the greater the storage overhead."
+        },
+        "Path": {
+          "type": "string",
+          "description": "The document path to be indexed. The accepted value is a valid document path including wildcards value such as ? and *."
+        }
+      },
+      "description": "A document path to be indexed. All properties are user settable."          
+    },
+    "ExcludePath": {
+      "required": [ "Path" ],
+      "properties": {
+        "Path": {
+          "type": "string",
+          "description": "The accepted value is a valid document path including wildcard values such as ? and *."
+        }
+      },
+      "description": "A document path to be excluded from indexing. All properties are user settable."
+    }
+  },
+  "parameters": {
+    "AccountName": {
+      "name": "accountName",
+      "in": "path",
+      "required": true,
+      "type": "string",
+      "description": "The account id for your DocumentDB account."
+    }
+  }
+}

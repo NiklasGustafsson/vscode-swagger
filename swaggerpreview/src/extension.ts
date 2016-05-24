@@ -45,7 +45,12 @@ export function activate(context: vscode.ExtensionContext) {
                 </body>`;
         }
 
+        //
+        // Formats HTML for a Swagger document.
+        //
         private snippet(doc): string {
+            
+            // To simplify things, the style sheet is defined inside the HTML document.           
             var style =
                 `<style>
 html {
@@ -218,16 +223,19 @@ main li.collapsed > .arrow::after {
   margin-left: -13px; }
 				</style>`
 
+            // Overall formatting logic -- include basic API information in the header.
             var intro = '<body><header>' + this.heading(doc) +
                 '<div class="summary"><p>' + this.getDescription(doc.info) + '</p>' +
                 '<ul><table>' +
                 '<tr><td class="key">Host:</td><td class="value">' + this.getHost(doc) + '</td></tr>' +
                 '<tr><td class="key">Schemes:</td><td class="value">' + this.getSchemes(doc) + '</td></tr>' +
                 '<tr><td class="key">License:</td><td class="value">' + this.getLicense(doc) + '</td></tr>' +
-                this.getConsumesAsTR(doc) +
-                this.getProducesAsTR(doc) +
+                this.getConsumes(doc) +
+                this.getProduces(doc) +
                 '</table></ul></div></header>';
 
+            // Then process the main sections: paths, definitions, parameters, and responses.
+            // TODO: Support the security-related sections, too.
             var paths = this.getPaths();           
             var definitions = doc.hasOwnProperty('definitions') ? this.getDefinitions(doc.definitions) : '';
             var parameters = doc.hasOwnProperty('parameters') ? this.getClientParameters(doc.parameters) : '';
@@ -259,6 +267,9 @@ main li.collapsed > .arrow::after {
             return result;
         }
 
+        //
+        // Formaths the HTML for the heading, which includes the title and version label.
+        //
         private heading(doc): string {
             var title = ((doc.info != null && doc.info.title != undefined) ? doc.info.title : '<div">No Document Title</div>');
             var version =
@@ -266,6 +277,9 @@ main li.collapsed > .arrow::after {
             return '<h1>' + title + '</h1><h2>Version ' + version + '</h2>';
         }
 
+        //
+        // Retrieves the host information.
+        //
         private getHost(doc): string {
 
             if (doc.hasOwnProperty('host')) {
@@ -275,6 +289,9 @@ main li.collapsed > .arrow::after {
             }
         }
 
+        //
+        // Formats HTML for an 'info.license' element.
+        //
         private getLicense(doc): string {
 
             if (doc.hasOwnProperty('info') && doc.info.hasOwnProperty('license')) {
@@ -287,37 +304,10 @@ main li.collapsed > .arrow::after {
             }
         }
 
+        //
+        // Formats HTML for a 'produces' element.
+        //
         private getProduces(doc): string {
-
-            var result = '';
-
-            if (doc.hasOwnProperty('produces') && doc.produces.length > 0) {
-                result += '<li><span class="key">Produces: </span><span class="value">';
-                for (var c in doc.produces) {
-                    result += doc.produces[c] + '&nbsp;'
-                }
-                result += '</span></li>';
-            }
-
-            return result;
-        }
-
-        private getConsumes(doc): string {
-
-            var result = '';
-
-            if (doc.hasOwnProperty('consumes') && doc.consumes.length > 0) {
-                result += '<li><span class="key">Consumes: </span><span class="value">';
-                for (var c in doc.consumes) {
-                    result += doc.consumes[c] + '&nbsp;'
-                }
-                result += '</span></li>';
-            }
-
-            return result;
-        }
-
-        private getProducesAsTR(doc): string {
 
             var result = '';
 
@@ -332,7 +322,10 @@ main li.collapsed > .arrow::after {
             return result;
         }
 
-        private getConsumesAsTR(doc): string {
+        //
+        // Formats HTML for a 'consumes' element.
+        //
+        private getConsumes(doc): string {
 
             var result = '';
 
@@ -346,12 +339,15 @@ main li.collapsed > .arrow::after {
 
             return result;
         }
+        
+        //
+        // Retrieves the declared protocols supported by the API.
+        //
         private getSchemes(doc): string {
 
             var result = '';
 
             if (doc.hasOwnProperty('schemes')) {
-
                 for (var key in doc.schemes) {
                     result += doc.schemes[key] + '&nbsp;';
                 }
@@ -362,11 +358,14 @@ main li.collapsed > .arrow::after {
             return result;
         }
 
+        //
+        // Formats HTML for all the path elements under the 'paths' and 'x-ms-paths' sections of the Swagger doc.
+        //
         private getPaths(): string {
 
             var result = '<li><h1 class="arrow">Service Paths</h1><ul id="service_paths">';
             
-            // Merge standard Swagger paths and x-ms-paths
+            // Merge the standard Swagger 'paths' and the Microsoft-specific 'x-ms-paths' sections
             
             var paths = {}
             
@@ -408,66 +407,74 @@ main li.collapsed > .arrow::after {
             return result + '</ul></li>';
         }
 
+        //
+        // Formats HTML for the operations of a path element.
+        //
         private getOperations(path): string {
 
             var result = '<ul class="get-put">';
 
             for (var key in path) {
-                if (path.hasOwnProperty(key)) {
-
-                    var element = path[key];
-
-                    switch (key) {
-                        case 'get':
-                        case 'put':
-                        case 'post':
-                        case 'delete':
-                        case 'head':
-                        case 'patch':
-                            result += '<li><h3 class="arrow">' + key.toUpperCase() + '</h3>';
-                            break;
-                        case 'parameters':
-                            break;
-                        default:
-                            result += '<h3>Unsupported HTTP verb</h3>';
-                            break;
-                    }
-                    result += '<div class="content">'
-                    if (element.hasOwnProperty('description')) {
-                        result += '<div class="definition">' + this.getDescription(element) + '</div>'
-                    }
-                    result += '<ul><li>'
-                    if (element.hasOwnProperty('operationId')) {
-                        var ids = element.operationId.split('_');
-                        result += '<table>'
-                        if (ids.length == 1) {
-                            result += '<tr><td>Operation Id</td><td>' + element.operationId + '</td></tr>'
-                        }
-                        else if (ids.length == 2) {
-                            result += '<tr><td class="key">Group:</td><td class="value">' + ids[0] + '</td></tr>'
-                            result += '<tr><td class="key">Operation:</td><td class="value">' + ids[1] + '</td></tr>'
-                        }
-                        result += this.getConsumesAsTR(element);
-                        result += this.getProducesAsTR(element);
-                        result += '</table>'
-                    }
-                    result += '</li></ul>'
-
-                    if (element.hasOwnProperty('parameters') && element.parameters.length > 0) {
-                        result += '<h4>Parameters</h4>';
-                        result += this.getOperationParameters('Parameters', element);
-                    }
-
-                    if (element.hasOwnProperty('responses')) {
-                        result += this.getOperationResponses(element.responses);
-                    }
-                    result += '</div></li>'
+                
+                var element = path[key];
+                
+                switch (key) {
+                    case 'get':
+                    case 'put':
+                    case 'post':
+                    case 'delete':
+                    case 'head':
+                    case 'patch':
+                        result += '<li><h3 class="arrow">' + key.toUpperCase() + '</h3>';
+                        break;
+                    case 'parameters':
+                        // Matches the path-level parameters section. HTML has already been
+                        // formatted for it, so we just ignore it here.
+                        continue;
+                    default:
+                        // Swagger only supports a standard set of HTTP verbs, so warn about those that are outside that set.
+                        result += '<h3 class="arrow" style="color:red">Unsupported HTTP verb: ' + key.toUpperCase() + '</h3>';
+                        break;
                 }
+                
+                result += '<div class="content">'
+                if (element.hasOwnProperty('description')) {
+                    result += '<div class="definition">' + this.getDescription(element) + '</div>'
+                }
+                
+                result += '<ul><li>'
+                if (element.hasOwnProperty('operationId')) {
+                    var ids = element.operationId.split('_');
+                    result += '<table>'
+                    if (ids.length == 1) {
+                        result += '<tr><td>Operation Id</td><td>' + element.operationId + '</td></tr>'
+                    } else if (ids.length == 2) {
+                        result += '<tr><td class="key">Group:</td><td class="value">' + ids[0] + '</td></tr>'
+                        result += '<tr><td class="key">Operation:</td><td class="value">' + ids[1] + '</td></tr>'
+                    }
+                    result += this.getConsumes(element);
+                    result += this.getProduces(element);
+                    result += '</table>'
+                }
+                result += '</li></ul>'
+
+                if (element.hasOwnProperty('parameters') && element.parameters.length > 0) {
+                    result += '<h4>Parameters</h4>';
+                    result += this.getOperationParameters('Parameters', element);
+                }
+
+                if (element.hasOwnProperty('responses')) {
+                    result += this.getOperationResponses(element.responses);
+                }
+                result += '</div></li>'
             }
 
             return result + '</ul>';
         }
 
+        //
+        // Formats HTML for the parameter definitions under a specific operation.
+        //
         private getOperationParameters(caption, operation): string {
 
             var result = '';
@@ -486,6 +493,9 @@ main li.collapsed > .arrow::after {
             return result;
         }
 
+        //
+        // Formats HTML for the definitions in the top-level 'parameters' section.
+        //
         private getClientParameters(parameters): string {
 
             var result = '<li><h1 class="arrow">Client (Global) Parameters</h1><ul>'
@@ -504,6 +514,9 @@ main li.collapsed > .arrow::after {
             return result + '</div></ul></li>';
         }
 
+        //
+        // Formats HTML containing information about a parameter.
+        //
         private getParameter(parameter): string {
 
             var result = '';
@@ -521,6 +534,8 @@ main li.collapsed > .arrow::after {
                 var required = (parameter.hasOwnProperty('required') && parameter.required);
 
                 result += '<tr><td width="1%"/>'
+                
+                // The formatted HTML is quite different for object types (and arrays of object types) and all others.
                 
                 if (isObject) {
                     result += '<td width="25%" style="padding: 1.0rem 0 1.0rem 0" valign="top">' + this.getName('No Name', parameter) + '</td>';
@@ -562,6 +577,9 @@ main li.collapsed > .arrow::after {
             return result;
         }
 
+        //
+        // Formats a phrase indicating the location of a parameter (body, path, header, etc.)
+        //  
         private getParameterLocation(parameter): string {
 
             if (parameter.hasOwnProperty('in')) {
@@ -577,6 +595,9 @@ main li.collapsed > .arrow::after {
             return 'unknown location';
         }
 
+        //
+        // Formats HTML for the responses defined in the top-level 'responses' section.
+        //
         private getGlobalResponses(responses): string {
 
             var result = '<li><h1 class="arrow">Responses</h1>';
@@ -594,6 +615,9 @@ main li.collapsed > .arrow::after {
             return result + '</div></ul></li>';
         }
 
+        //
+        // Formats HTML for the responses defined under a specific operation.
+        //
         private getOperationResponses(responses): string {
 
             var result = '<h4>Responses</h4>';
@@ -610,6 +634,9 @@ main li.collapsed > .arrow::after {
             return result;
         }
 
+        //
+        // Formats HTML for a response found under the top-level 'responses' section.
+        //
         private getGlobalResponse(key, response): string {
 
             var result = '';
@@ -639,6 +666,10 @@ main li.collapsed > .arrow::after {
             return result + '</td></tr>';
         }
 
+        //
+        // Formats HTML for a response found under an operation. The formatting is very similar to what the previous
+        // method produces, but not exactly the same, so two methods is the easiest way to deal with it. 
+        //
         private getOperationResponse(key, response): string {
 
             var result = '';
@@ -671,6 +702,9 @@ main li.collapsed > .arrow::after {
             return result + '</td></tr>';
         }
 
+        //
+        // Formats HTML for the 'definitions' section of the Swagger document
+        //
         private getDefinitions(definitions): string {
 
             var result = '<li><h1 class="arrow" >Definitions</h1><ul>'
@@ -681,9 +715,7 @@ main li.collapsed > .arrow::after {
                 result += '<li><h2 class="arrow" style="font-size: 1.87rem">' + key + '</h2>';
 
                 result += '<div class="content">'
-                if (definition.hasOwnProperty('description')) {
-                    result += '<p>' + this.getDescription(definition) + '</p>'
-                }
+                result += '<p>' + this.getDescription(definition) + '</p>'
 
                 result += '<ul class="get-put"><li>'
 
@@ -695,6 +727,9 @@ main li.collapsed > .arrow::after {
             return result + '</ul></li>';
         }
 
+        //
+        // Formats HTML for a schema type.
+        //
         private getSchema(schema, nested=false): string {
 
             var result = '';
@@ -722,12 +757,15 @@ main li.collapsed > .arrow::after {
                 result += '<td width="25%" style="padding: 1.0rem 0 1.0rem 0" valign="top">' + this.getName(p, property) + '<span class="type">' + this.getType(property,false, null, true) + '</span></td>';
 
                 if (nested) {
+                    // There's currently a problem formatting nested schema information, since the column get very narrow. Therefore, omit
+                    // some of the descriptive information when nested.
                     result += '<td width="*" style="padding: 1.0rem 0 1.0rem 0" valign="top">';                    
                 } else {
                     result += '<td width="*" style="padding: 1.0rem 0 1.0rem 0" valign="top"><span class="description">' + this.getDescription(property) + '</span>' +
                               '<div class="info"><span class="key">This property is ' + (required ? 'required' : 'optional');
 
                     if (property.hasOwnProperty('readOnly') && property.readOnly)
+                        // This is how the Swagger spec defines 'read-only': 
                         result += ' and readonly. It may only occur in response payloads.'
 
                     result += '</span></div>';
@@ -752,6 +790,9 @@ main li.collapsed > .arrow::after {
             return result;
         }
 
+        //
+        // Formats HTML for any type.
+        //
         private getType(element, array=false, caption=null, nested=false): string {
 
             if (element.hasOwnProperty('properties')) {
@@ -794,6 +835,9 @@ main li.collapsed > .arrow::after {
             return '';
         }
 
+        //
+        // Formats HTML table rows for each header element of a response definition.
+        // 
         private getHeaders(element, useOuterTable=false): string {
 
             if (element.hasOwnProperty('headers')) {
@@ -818,10 +862,18 @@ main li.collapsed > .arrow::after {
             return null;
         }
 
+        //
+        // Formats HTML for the default value of a parameter or schema property.
+        //
         private getDefaultValue(element, isArray : boolean) {
             return element.hasOwnProperty('default') && element.default != '' ? ('<span class="value">Default value: ' + element.default + '</span>') : null;
         }
 
+        //
+        // Formats HTML spans for valid data values applied to parameters and schema properties
+        // that are numbers or strings. Arrays are also handled, with the valid values applied to the
+        // elements.
+        // 
         private getValidValues(element, isArray : boolean) : string {
             
             var result =''
@@ -842,13 +894,15 @@ main li.collapsed > .arrow::after {
                 }
             }
             else {
-                // Look for ranges of numeric values
+                // Look for ranges of numeric values.
+                // Format using ISO-standard mathematical inclusive-exclusive range notation.
+                // See: https://en.wikipedia.org/wiki/ISO_31-11 for more details.
                 if (element.hasOwnProperty('minimum')) {
                     if (element.hasOwnProperty('maximum')) {
                         result += '<span class="value">' + lead + 'in the range ';
-                        result += (element.hasOwnProperty('exclusiveMinimum') && element.exclusiveMaximum) ? ']' : '[';
+                        result += (element.hasOwnProperty('exclusiveMinimum') && element.exclusiveMinimum) ? '(' : '[';
                         result += element.minimum + ',' + element.maximum                       
-                        result += (element.hasOwnProperty('exclusiveMaximum') && element.exclusiveMaximum) ? '[' : ']';
+                        result += (element.hasOwnProperty('exclusiveMaximum') && element.exclusiveMaximum) ? ')' : ']';
                         result += '</span>'
                     } else {
                         result += '<span class="value">' + lead;
@@ -868,6 +922,10 @@ main li.collapsed > .arrow::after {
             return result.length == 0 ? null : result;
         }
         
+        //
+        // Formats HTML spans for integer, string, and array constraints. Arrays of integers and strings
+        // are handled, with the constraints applied to the array elements.
+        // 
         private getConstraints(element, isArray : boolean) : string {
 
             var result = '';
@@ -898,6 +956,9 @@ main li.collapsed > .arrow::after {
             return result;            
         }
 
+        //
+        // Formats HTML for the name and client name (if one is set) of an element and format the HTML for it.
+        //
         private getName(deflt, element): string {
 
             var result = '';
@@ -913,6 +974,10 @@ main li.collapsed > .arrow::after {
             return '<span class="termlabel">' + deflt + '</span>';
         }
 
+        //
+        // Formats HTML for the name and client name (if one is set) of a header. This uses slightly different HTML formatting
+        // compared with getName(), suitable for inclusion in response listings.
+        //
         private getHeaderName(deflt, element): string {
 
             var result = '';
@@ -928,10 +993,17 @@ main li.collapsed > .arrow::after {
             return '<span class="key">' + deflt + '</span>';
         }
 
+        //
+        // Formats HTML for the element description, or a warning in red color that points out that the description is missing.
+        //
         private getDescription(element): string {
             return element.hasOwnProperty('description') && element.description != '' ? element.description : '<span style="color:red">This element has no description.</span>';
         }
         
+        //
+        // This function answers the question 'Is the type an object'? To be one, it has
+        // to have a schema, or be an array that has a schema.
+        // 
         private isObject(schema) : boolean {
             
             schema = this.resolveReference(schema);           
@@ -939,8 +1011,14 @@ main li.collapsed > .arrow::after {
                    (schema.hasOwnProperty('items') && this.isObject(schema.items)); 
         }        
         
+        //
+        // Resolves a reference to a payload definition, parameter, or response. Only internal document
+        // references, that is, those of the form '$ref/{section}/{definition}' are supported. External
+        // schema references are ignored.
+        //
         private resolveReference(reference)
         {
+            // TODO: support external references, too.
             if (reference.hasOwnProperty('$ref')) {
                 
                 let ref = reference['$ref'];
@@ -959,6 +1037,9 @@ main li.collapsed > .arrow::after {
         }
     }
 
+    //
+    // The following is largely generic code to set up the plugin and register the command it implements.
+    //
     let provider = new TextDocumentContentProvider();
     let registration = vscode.workspace.registerTextDocumentContentProvider('swagger-preview', provider);
 
