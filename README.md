@@ -9,7 +9,7 @@ The extension is implemented in TypeScript, in the file [swaggerpreview/src/exte
 
 There is no installer for this plugin. Instead, you copy three files in place.
 
-Under your VS Code home folder, create a 'swaggerpreview' folder. The home folder is found under ~/ on Linux and OS X, under %USERPROFILE% on Windows. Then, create a folder swaggerpreview/out/src,
+Under your VS Code home folder, create a 'swaggerpreview' folder under 'extensions'. The home folder is found under ~/ on Linux and OS X, under %USERPROFILE% on Windows. Then, create a folder swaggerpreview/out/src,
 copy the files from the out/src directory in this repo, and the package.json file into the top-level 'swaggerpreview' folder.
 
 Restart VS Code, open a Swagger file, and press F1. This should pop open the command prompt. The command to look for is named 'Swagger Preview.' When selected, it should create a second window pane and display a rendering of the Swagger data as documentation-style HTML.
