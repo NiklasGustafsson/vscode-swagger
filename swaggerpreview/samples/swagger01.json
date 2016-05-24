@@ -1,11 +1,11 @@
 {
     "swagger": "2.0",
     "info": {
-        "title": "Client02",
+        "title": "Swagger Test Client 1",
         "version": "0.9.1",
 		"license": {
 			"name": "MIT",
-			"url": "http://www.cnn.com"
+			"url": "https://opensource.org/licenses/MIT"
 		},
 		"description": "This is a test client definition. I only use it to test the Swagger-Preview Code plugin."
     },
@@ -125,8 +125,15 @@
 						"x-ms-client-name": "",
 						"in": "query",
 						"required": false,
-						"type": "integer",
-						"format": "int32"
+						"type": "array",
+						"items": {
+							"type": "integer",
+							"format": "int32",
+							"maximum": 17,
+							"minimum": 13,
+							"multipleOf": 5,
+							"exclusiveMaximum": false
+						}
 					},
 					{
 						"name": "name",
@@ -260,6 +267,8 @@
             "required": false,
             "type": "string",
             "x-ms-global": true,
+			"maxLength": 15,
+			"minLength": 10,
             "enum": [
                 "2015-04-05",
                 "2014-02-14",

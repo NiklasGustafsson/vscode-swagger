@@ -220,15 +220,15 @@ main li.collapsed > .arrow::after {
 
             var intro = '<body><header>' + this.heading(doc) +
                 '<div class="summary"><p>' + this.getDescription(doc.info) + '</p>' +
-                '<ul>' +
-                '<li><span class="key">Host: </span><span class="value">' + this.getHost(doc) + '</span></li>' +
-                '<li><span class="key">Schemes: </span><span class="value">' + this.getSchemes(doc) + '</span></li>' +
-                '<li><span class="key">License: </span><span class="value">' + this.getLicense(doc) + '</span></li>' +
-                this.getConsumes(doc) +
-                this.getProduces(doc) +
-                '</ul></div></header>';
+                '<ul><table>' +
+                '<tr><td class="key">Host:</td><td class="value">' + this.getHost(doc) + '</td></tr>' +
+                '<tr><td class="key">Schemes:</td><td class="value">' + this.getSchemes(doc) + '</td></tr>' +
+                '<tr><td class="key">License:</td><td class="value">' + this.getLicense(doc) + '</td></tr>' +
+                this.getConsumesAsTR(doc) +
+                this.getProducesAsTR(doc) +
+                '</table></ul></div></header>';
 
-            var paths = doc.hasOwnProperty('paths') ? this.getPaths(doc.paths) : '';
+            var paths = this.getPaths();           
             var definitions = doc.hasOwnProperty('definitions') ? this.getDefinitions(doc.definitions) : '';
             var parameters = doc.hasOwnProperty('parameters') ? this.getClientParameters(doc.parameters) : '';
             var responses = doc.hasOwnProperty('responses') ? this.getGlobalResponses(doc.responses) : '';
@@ -322,7 +322,7 @@ main li.collapsed > .arrow::after {
             var result = '';
 
             if (doc.hasOwnProperty('produces') && doc.produces.length > 0) {
-                result += '<tr><td class="key">Produces</td><td class="value">';
+                result += '<tr><td class="key">Produces:</td><td class="value">';
                 for (var c in doc.produces) {
                     result += doc.produces[c] + '&nbsp;'
                 }
@@ -337,7 +337,7 @@ main li.collapsed > .arrow::after {
             var result = '';
 
             if (doc.hasOwnProperty('consumes') && doc.consumes.length > 0) {
-                result += '<tr><td class="key">Consumes</td><td class="value">';
+                result += '<tr><td class="key">Consumes:</td><td class="value">';
                 for (var c in doc.consumes) {
                     result += doc.consumes[c] + '&nbsp;'
                 }
@@ -362,27 +362,48 @@ main li.collapsed > .arrow::after {
             return result;
         }
 
-        private getPaths(paths): string {
+        private getPaths(): string {
 
             var result = '<li><h1 class="arrow">Service Paths</h1><ul id="service_paths">';
-
+            
+            // Merge standard Swagger paths and x-ms-paths
+            
+            var paths = {}
+            
+            if (this._doc.hasOwnProperty('paths')) {         
+                for (var key in this._doc.paths) {
+                    paths[key] = this._doc.paths[key];                    
+                }
+            }
+            
+            if (this._doc.hasOwnProperty('x-ms-paths')) {         
+                for (var key in this._doc['x-ms-paths']) {
+                    if (paths[key]) {
+                        for (var k in this._doc['x-ms-paths'][key]) {
+                            paths[key][k] = this._doc['x-ms-paths'][key][k]
+                        }
+                    }
+                    else {
+                        paths[key] = this._doc['x-ms-paths'][key];
+                    }                    
+                }
+            }
+            
             for (var key in paths) {
 
-                if (paths.hasOwnProperty(key)) {
-                    var element = paths[key];
+                var element = paths[key];
 
-                    result += '<li><h2 class="arrow">' + key + '</h2>';
-                    result += '<div class="content">'
+                result += '<li><h2 class="arrow">' + key + '</h2>';
+                result += '<div class="content">'
 
-                    if (element.hasOwnProperty('parameters') && element.parameters.length > 0) {
-                        result += '<h3 class="parameters-all">Parameters for All Operations</h3>';
-                        result += this.getOperationParameters('Parameters for All Methods', element);
-                    }
-
-                    result += this.getOperations(element);
-
-                    result += '</div></li>';
+                if (element.hasOwnProperty('parameters') && element.parameters.length > 0) {
+                    result += '<h3 class="parameters-all">Parameters for All Operations</h3>';
+                    result += this.getOperationParameters('Parameters for All Methods', element);
                 }
+
+                result += this.getOperations(element);
+
+                result += '</div></li>';
             }
             return result + '</ul></li>';
         }
@@ -423,8 +444,8 @@ main li.collapsed > .arrow::after {
                             result += '<tr><td>Operation Id</td><td>' + element.operationId + '</td></tr>'
                         }
                         else if (ids.length == 2) {
-                            result += '<tr><td class="key">Group</td><td class="value">' + ids[0] + '</td></tr>'
-                            result += '<tr><td class="key">Operation</td><td class="value">' + ids[1] + '</td></tr>'
+                            result += '<tr><td class="key">Group:</td><td class="value">' + ids[0] + '</td></tr>'
+                            result += '<tr><td class="key">Operation:</td><td class="value">' + ids[1] + '</td></tr>'
                         }
                         result += this.getConsumesAsTR(element);
                         result += this.getProducesAsTR(element);
@@ -491,11 +512,12 @@ main li.collapsed > .arrow::after {
             
             if (parameter == null) return '';
             
-            var isObject = parameter.hasOwnProperty('schema') && this.isObject(parameter.schema);           
-            var type = this.getType(isObject ? parameter.schema : parameter);         
-
-            
             if (parameter.hasOwnProperty('name')) {
+
+                var isObject = parameter.hasOwnProperty('schema') && this.isObject(parameter.schema);     
+                var isArray = parameter.hasOwnProperty('items');       
+                var type = this.getType(isObject ? parameter.schema : parameter);                     
+                
                 var required = (parameter.hasOwnProperty('required') && parameter.required);
 
                 result += '<tr><td width="1%"/>'
@@ -503,32 +525,38 @@ main li.collapsed > .arrow::after {
                 if (isObject) {
                     result += '<td width="25%" style="padding: 1.0rem 0 1.0rem 0" valign="top">' + this.getName('No Name', parameter) + '</td>';
                     result += '<td width="*" style="padding: 1.0rem 0 1.0rem 0"><span class="description" valign="top">' + this.getDescription(parameter) + '</span>' +
-                        '<div class="info"><span class="key">This parameter is ' + (required ? 'required' : 'optional') + ' and passed in ' + this.getParameterLocation(parameter) + '</span>';
-                    result += '</div></td>'
-                    result += '<tr><td width="1%"/><td width="*" colspan="2"><span class="type">' + type + '</span></td>'                                                               
+                        '<div class="info"><span class="value">This parameter is ' + (required ? 'required' : 'optional') + ' and passed in ' + this.getParameterLocation(parameter) + '</span>';
+                    result += '</div></td>';
+                    result += '<tr><td width="1%"/><td width="*" colspan="2"><span class="type">' + type + '</span></td>';                                                               
                 } else {
                     result += '<td width="25%" style="padding: 1.0rem 0 1.0rem 0" valign="top">' + this.getName('No Name', parameter) + '<span class="type">' + type + '</span></td>';
                     result += '<td width="*" style="padding: 1.0rem 0 1.0rem 0"><span class="description" valign="top">' + this.getDescription(parameter) + '</span>' +
-                        '<div class="info"><span class="key">This parameter is ' + (required ? 'required' : 'optional') + ' and passed in ' + this.getParameterLocation(parameter) + '</span>';
+                        '<div class="info"><span class="value">This parameter is ' + (required ? 'required' : 'optional') + ' and passed in ' + this.getParameterLocation(parameter) + '</span>';
 
-                    var dflt = this.getDefaultValue(parameter);
-                    var valids = this.getValidValues(parameter);
+                    var element = isArray ? parameter.items : parameter;
+                    
+                    var dflt = this.getDefaultValue(element, isArray);
+                    var valids = this.getValidValues(element, isArray);
+                    var constraints = this.getConstraints(element, isArray);
 
-                    var isConstant = required && dflt != null && valids != null && parameter.enum.length == 1;
+                    var isConstant = required && element.hasOwnProperty('enum') && element.enum.length == 1;
 
-                    if (valids != null)
-                        result += '</div><div><span class="key">Since this parameter is required and has only one valid value, it is effectively a constant.</span>'
+                    if (isConstant)
+                        result += '</div><div><span class="value">Since this parameter is required and has only one valid value, it is effectively a constant.</span>';
 
-                    if (dflt != null) {
-                        result += '</div><div><span class="key">Default value: </span><span class="description" valign="top">' + dflt + '</span>'
+                    if (constraints != null) {
+                        result += '</div><div>' + constraints;
                     }
                     if (valids != null) {
-                        result += '</div><div><span class="key">Valid values: </span><span class="description" valign="top">' + valids + '</span>'
+                        result += '</div><div>' + valids;
+                    }
+                    if (dflt != null && !isConstant) {
+                        result += '</div><div>' + dflt;
                     }
 
-                    result += '</div>'                    
+                    result += '</div>';                    
                 }
-                result += '</td></tr>'
+                result += '</td></tr>';
             }
 
             return result;
@@ -543,7 +571,7 @@ main li.collapsed > .arrow::after {
                     case 'form':
                         return 'a form element';
                     default:
-                        return 'the ' + parameter['in']
+                        return 'the ' + parameter['in'];
                 }
             }
             return 'unknown location';
@@ -551,16 +579,16 @@ main li.collapsed > .arrow::after {
 
         private getGlobalResponses(responses): string {
 
-            var result = '<li><h1 class="arrow">Responses</h1>'
+            var result = '<li><h1 class="arrow">Responses</h1>';
             result += '<div class="content"><ul class="responses">';
 
             for (var key in responses) {
-                result += '<li id="schema' + key + '"><h2 style="font-size: 1.87rem">' + key + '</h2>'
-                result += '<table width="100%" class="description">'
+                result += '<li id="schema' + key + '"><h2 style="font-size: 1.87rem">' + key + '</h2>';
+                result += '<table width="100%" class="description">';
 
                 var response = responses[key];
-                result += this.getOperationResponse(key, response)
-                result += '</table></li>'
+                result += this.getOperationResponse(key, response);
+                result += '</table></li>';
             }
 
             return result + '</div></ul></li>';
@@ -676,12 +704,17 @@ main li.collapsed > .arrow::after {
             if (schema == null) return '';
 
             result += '<h4>Properties</h4>';
-
+            
             result += '<ul class="parameters"><li>';
+            
+            if (nested) {
+                result += '<span class="description">Please see the "definitions" entry for the schema for full details.</span>';               
+            }
 
             result += '<table class="description" width="100%">'
 
             for (var p in schema.properties) {
+                
                 var property = schema.properties[p];
                 var required = schema.hasOwnProperty('required') && (schema.required.indexOf(p) > -1);
 
@@ -699,13 +732,17 @@ main li.collapsed > .arrow::after {
 
                     result += '</span></div>';
 
-                    var dflt = this.getDefaultValue(property);
-                    var valids = this.getValidValues(property);
+                    var isArray = property.hasOwnProperty('items');       
+                    var dflt = this.getDefaultValue(property, isArray);
+                    var valids = this.getValidValues(property, isArray);
+                    var constraints = this.getConstraints(property, isArray);
 
                     if (dflt != null)
-                        result += '</div><div><span class="key">Default value: </span><span class="description">' + dflt + '</span>'
+                        result += '</div><div>' + dflt;
+                    if (constraints != null)
+                        result += '</div><div>' + constraints;                    
                     if (valids != null)
-                        result += '</div><div><span class="key">Valid values: </span><span class="description">' + valids + '</span>'
+                        result += '</div><div>' + valids;
                 }
                 result += '</td></tr>'
             }
@@ -725,7 +762,7 @@ main li.collapsed > .arrow::after {
                     caption = 'Schema';
                    
                 if (array)
-                    caption += '[]'
+                    caption += ' array'
                     
                 var result = '<ul><li class="collapsed"><h4 class="arrow">' + caption + '</h4>';
 
@@ -739,7 +776,7 @@ main li.collapsed > .arrow::after {
             else if (element.hasOwnProperty('type')) {
                 var type = element.type;
                 if (type === 'array') {
-                    type = this.getType(element.items, true, caption, nested);
+                    type = this.getType(element.items, true, caption, nested) + ' array';
                 }
                 return type;
             }
@@ -781,23 +818,84 @@ main li.collapsed > .arrow::after {
             return null;
         }
 
-        private getDefaultValue(element) {
-            return element.hasOwnProperty('default') && element.default != '' ? element.default : null;
+        private getDefaultValue(element, isArray : boolean) {
+            return element.hasOwnProperty('default') && element.default != '' ? ('<span class="value">Default value: ' + element.default + '</span>') : null;
         }
 
-        private getValidValues(element) {
+        private getValidValues(element, isArray : boolean) : string {
+            
+            var result =''
+
+            var lead = isArray ? 'Each element value must be ' : 'The value must be ';
+
             if (element.hasOwnProperty('enum') && element.enum.length > 0) {
-                var result = ''
                 var first = true
                 for (var c in element.enum) {
-                    result += element.enum[c]
-                    if (!first)
-                        result += ', '
+                    if (!first) result += ', '
+                    result += '"' + element.enum[c] + '"'
                     first = false
+                }        
+                if (element.enum.length == 1) {
+                    result = '<span class="value">' + lead + result + '</span>';                    
+                } else {
+                    result = '<span class="value">' + lead + 'one of ' + result + '</span>';
                 }
-                return result;
             }
-            return null;
+            else {
+                // Look for ranges of numeric values
+                if (element.hasOwnProperty('minimum')) {
+                    if (element.hasOwnProperty('maximum')) {
+                        result += '<span class="value">' + lead + 'in the range ';
+                        result += (element.hasOwnProperty('exclusiveMinimum') && element.exclusiveMaximum) ? ']' : '[';
+                        result += element.minimum + ',' + element.maximum                       
+                        result += (element.hasOwnProperty('exclusiveMaximum') && element.exclusiveMaximum) ? '[' : ']';
+                        result += '</span>'
+                    } else {
+                        result += '<span class="value">' + lead;
+                        result += (element.hasOwnProperty('exclusiveMinimum') && element.exclusiveMinimum) ? '>' : '≥';
+                        result += element.minimum;
+                        result += '</span>'
+                    }                    
+                }
+                else if (element.hasOwnProperty('maximum')) {
+                    result += '<span class="value">' + lead;
+                    result += (element.hasOwnProperty('exclusiveMaximum') && element.exclusiveMaximum) ? '<' : '≤';
+                    result += element.maximum;                   
+                    result += '</span>'
+                }
+            }
+            
+            return result.length == 0 ? null : result;
+        }
+        
+        private getConstraints(element, isArray : boolean) : string {
+
+            var result = '';
+            var lead = isArray ? 'Each element value must be ' : 'The value must be ';
+
+            if (element.hasOwnProperty('minLength')) {
+                result += '<span class="value">Minimum length: ' + element.minLength + '. </span>';
+            }
+            if (element.hasOwnProperty('maxLength')) {
+                result += '<span class="value">Maximum length: ' + element.maxLength + '. </span>';
+            }
+            if (element.hasOwnProperty('minItems')) {
+                result += '<span class="value">Minimum number of items: ' + element.minItems + '. </span>';
+            }
+            if (element.hasOwnProperty('maxItems')) {
+                result += '<span class="value">Maximum number of items: ' + element.maxItems + '. </span>';
+            }
+            if (element.hasOwnProperty('pattern')) {
+                result += '<span class="value">' + lead + 'conform to the following regular expression: "' + element.pattern + '". </span>';
+            }
+            if (element.hasOwnProperty('multipleOf')) {
+                result += '<span class="value">' + lead + 'a multiple of ' + element.multipleOf + '. </span>';
+            }
+            if (element.hasOwnProperty('uniqueItems') && element.uniqueItems) {
+                result += '<span class="value">' + lead + 'unique.</span>';
+            }
+            
+            return result;            
         }
 
         private getName(deflt, element): string {
