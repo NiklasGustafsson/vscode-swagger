@@ -426,49 +426,135 @@ function activate(context) {
         //
         TextDocumentContentProvider.prototype.getSchema = function (schema, nested) {
             if (nested === void 0) { nested = false; }
-            var result = '';
             schema = this.resolveReference(schema);
             if (schema == null)
                 return '';
-            result += '<h4>Properties</h4>';
-            result += '<ul class="parameters"><li>';
+            if (!schema.hasOwnProperty('type') || schema.type == 'object' || schema.type == 'array') {
+                return this.getObjectSchema(schema, nested);
+            }
+            var result = '<ul class="parameters"><li>';
             if (nested) {
                 // There's currently a problem formatting nested schema information, since the column get very narrow. Therefore, omit
                 // some of the descriptive information when nested.
                 result += '<span class="description">Please see the "definitions" entry for the schema for full details.</span>';
             }
-            result += '<table class="description" width="100%">';
-            for (var p in schema.properties) {
-                var property = schema.properties[p];
-                var required = schema.hasOwnProperty('required') && (schema.required.indexOf(p) > -1);
-                result += '<tr><td width=".5%"/>';
-                result += '<td width="25%" style="padding: 1.0rem 0 1.0rem 0" valign="top">' + this.getName(p, property) + '<span class="type">' + this.getType(property, false, null, true) + '</span></td>';
-                if (nested) {
-                    result += '<td width="*" style="padding: 1.0rem 0 1.0rem 0" valign="top">';
-                }
-                else {
-                    result += '<td width="*" style="padding: 1.0rem 0 1.0rem 0" valign="top"><span class="description">' + this.getDescription(property) + '</span>' +
-                        '<div class="info"><span class="key">This property is ' + (required ? 'required' : 'optional');
-                    if (property.hasOwnProperty('readOnly') && property.readOnly) {
-                        // This is how the Swagger spec defines 'read-only': 
-                        result += ' and readonly. It may only occur in response payloads.';
-                    }
-                    result += '</span></div>';
-                    var isArray = property.hasOwnProperty('items');
-                    var dflt = this.getDefaultValue(property, isArray);
-                    var valids = this.getValidValues(property, isArray);
-                    var constraints = this.getConstraints(property, isArray);
-                    if (dflt != null)
-                        result += '</div><div>' + dflt;
-                    if (constraints != null)
-                        result += '</div><div>' + constraints;
-                    if (valids != null)
-                        result += '</div><div>' + valids;
-                }
-                result += '</td></tr>';
+            else if (schema.hasOwnProperty('description')) {
+                result += '<span class="description">' + this.getDescription(schema) + '</span>';
             }
+            result += '<table class="description" width="100%">';
+            result += '<tr><td width=".5%"/>';
+            result += '<td width="25%" style="padding: 1.0rem 0 1.0rem 0" valign="top"><span class="type">' + schema.type + '</span></td>';
+            if (nested) {
+                result += '<td width="*" style="padding: 1.0rem 0 1.0rem 0" valign="top">';
+            }
+            else {
+                result += '<td width="*" style="padding: 1.0rem 0 1.0rem 0" valign="top">';
+                var isArray = schema.hasOwnProperty('items');
+                var dflt = this.getDefaultValue(schema, isArray);
+                var valids = this.getValidValues(schema, isArray);
+                var constraints = this.getConstraints(schema, isArray);
+                if (dflt != null)
+                    result += '</div><div>' + dflt;
+                if (constraints != null)
+                    result += '</div><div>' + constraints;
+                if (valids != null)
+                    result += '</div><div>' + valids;
+            }
+            result += '</td></tr>';
             result += '</table>';
             result += '</li></ul>';
+            return result;
+        };
+        TextDocumentContentProvider.prototype.getObjectSchema = function (schema, nested) {
+            if (nested === void 0) { nested = false; }
+            var result = '';
+            var inherits = false;
+            if (schema.hasOwnProperty('allOf')) {
+                inherits = true;
+                result += '<h4>Inherits</h4>';
+                for (var b in schema.allOf) {
+                    var base = this.resolveReference(schema.allOf[b]);
+                    result += '<span class="description">' + this.getReferencedName(schema.allOf[b]) + '</span>';
+                    if (nested) {
+                        // There's currently a problem formatting nested schema information, since the column get very narrow. Therefore, omit
+                        // some of the descriptive information when nested.
+                        result += '<span class="description">Please see the "definitions" entry for the schema for full details.</span>';
+                    }
+                    else if (schema.hasOwnProperty('description')) {
+                        result += '<span class="description">' + this.getDescription(base) + '</span>';
+                    }
+                }
+                var inherited = schema.allOf;
+                if (!schema.hasOwnProperty('properties')) {
+                    schema.properties = {};
+                }
+                result += '<h4>Inherited Properties</h4>';
+                result += '<ul class="parameters"><li>';
+                result += '<table class="description" width="100%">';
+                for (var b in schema.allOf) {
+                    var base = this.resolveReference(schema.allOf[b]);
+                    if (base.hasOwnProperty('properties')) {
+                        for (var p in base.properties) {
+                            if (schema.properties[p] != null)
+                                continue;
+                            var property = base.properties[p];
+                            var required = base.hasOwnProperty('required') && (base.required.indexOf(p) > -1) ||
+                                schema.hasOwnProperty('required') && (schema.required.indexOf(p) > -1);
+                            result += this.getPropertyInfo(p, property, required, nested);
+                        }
+                    }
+                }
+                result += '</table>';
+                result += '</li></ul>';
+            }
+            if (schema.hasOwnProperty('properties') && Object.keys(schema.properties).length > 0) {
+                result += '<h4>Properties</h4>';
+                result += '<ul class="parameters"><li>';
+                if (nested) {
+                    // There's currently a problem formatting nested schema information, since the column get very narrow. Therefore, omit
+                    // some of the descriptive information when nested.
+                    result += '<span class="description">Please see the "definitions" entry for the schema for full details.</span>';
+                }
+                else if (schema.hasOwnProperty('description')) {
+                    result += '<span class="description">' + this.getDescription(schema) + '</span>';
+                }
+                result += '<table class="description" width="100%">';
+                for (var p in schema.properties) {
+                    var property = schema.properties[p];
+                    var required = schema.hasOwnProperty('required') && (schema.required.indexOf(p) > -1);
+                    result += this.getPropertyInfo(p, property, required, nested);
+                }
+                result += '</table>';
+                result += '</li></ul>';
+            }
+            return result;
+        };
+        TextDocumentContentProvider.prototype.getPropertyInfo = function (p, property, required, nested) {
+            var result = '<tr><td width=".5%"/>';
+            result += '<td width="25%" style="padding: 1.0rem 0 1.0rem 0" valign="top">' + this.getName(p, property) + '<span class="type">' + this.getType(property, false, null, true) + '</span></td>';
+            if (nested) {
+                result += '<td width="*" style="padding: 1.0rem 0 1.0rem 0" valign="top">';
+            }
+            else {
+                result += '<td width="*" style="padding: 1.0rem 0 1.0rem 0" valign="top"><span class="description">' + this.getDescription(property) + '</span>' +
+                    '<div class="info"><span class="key">This property is ' + (required ? 'required' : 'optional');
+                if (property.hasOwnProperty('readOnly') && property.readOnly) {
+                    // This is how the Swagger spec defines 'read-only': 
+                    result += ' and readonly. It may only occur in response payloads.';
+                }
+                result += '</span></div>';
+                var isArray = property.hasOwnProperty('items');
+                var dflt = this.getDefaultValue(property, isArray);
+                var valids = this.getValidValues(property, isArray);
+                var constraints = this.getConstraints(property, isArray);
+                if (dflt != null)
+                    result += '</div><div>' + dflt;
+                if (constraints != null)
+                    result += '</div><div>' + constraints;
+                if (valids != null)
+                    result += '</div><div>' + valids;
+            }
+            result += '</td></tr>';
             return result;
         };
         //
@@ -478,7 +564,7 @@ function activate(context) {
             if (array === void 0) { array = false; }
             if (caption === void 0) { caption = null; }
             if (nested === void 0) { nested = false; }
-            if (element.hasOwnProperty('properties')) {
+            if (element.hasOwnProperty('properties') || element.hasOwnProperty('allOf')) {
                 var schema = element;
                 if (caption == null)
                     caption = 'Schema';
@@ -661,7 +747,7 @@ function activate(context) {
         // 
         TextDocumentContentProvider.prototype.isObject = function (schema) {
             schema = this.resolveReference(schema);
-            return schema.hasOwnProperty('properties') || (schema.hasOwnProperty('items') && this.isObject(schema.items));
+            return schema.hasOwnProperty('properties') || schema.hasOwnProperty('allOf') || (schema.hasOwnProperty('items') && this.isObject(schema.items));
         };
         //
         // Resolves a reference to a payload definition, parameter, or response. Only internal document
@@ -680,6 +766,18 @@ function activate(context) {
                 return null;
             }
             return reference;
+        };
+        TextDocumentContentProvider.prototype.getReferencedName = function (reference) {
+            // TODO: support external references, too.
+            if (reference.hasOwnProperty('$ref')) {
+                var ref = reference['$ref'];
+                var split = ref.split('/');
+                if (split.length == 3 && split[0] === '#' &&
+                    this._doc.hasOwnProperty(split[1]) && this._doc[split[1]].hasOwnProperty(split[2])) {
+                    return split[2];
+                }
+            }
+            return '';
         };
         return TextDocumentContentProvider;
     }());

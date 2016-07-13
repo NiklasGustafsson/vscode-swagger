@@ -34,7 +34,7 @@
 						"required": true,
 						"description": "Database information.",						
 						"schema": {
-                            "$ref": "#/definitions/Database"
+                            "$ref": "#/definitions/AdmResource"
                         }
 					}
 				],
@@ -91,7 +91,7 @@
 					"201": {
                         "description": "GETs a greeting.",
                         "schema": {
-                            "$ref": "#/definitions/Database"
+                            "$ref": "#/definitions/AdmResource"
                         }
                     },
 					"404": {
@@ -201,6 +201,54 @@
 				"message": { "type": "string", "readOnly": true}
 			}	
 		},
+		"Resource": {
+			"description": "Base for all ARM-adressable resources",
+			"properties": {
+				"id": {
+					"type": "string",
+					"readOnly": true,
+					"description": "Resource identifier."
+				},
+				"type": {
+					"type": "string",
+					"readOnly": true,
+					"description": "Resource type."
+				},
+				"name": {
+					"type": "string",
+					"readOnly": true,
+					"description": "resource name"
+				},
+				"etag": {
+					"readOnly": true,
+					"type": "string"
+				},
+				"kind": {
+					"readOnly": true,
+					"type": "string"
+				}
+			}
+		},
+		"AdmResource": {
+			"allOf": [
+				{
+				"$ref": "#/definitions/Resource"
+				}
+			],
+			"discriminator": "kind",
+			"required": [ "kind" ]
+		},
+		"MonitoringState": {
+			"type": "string",
+			"enum": [
+				"monitored",
+				"discovered"
+			],
+			"x-ms-enum": {
+				"name": "MonitoringState",
+				"modelAsString": false
+			}
+		},
 		"DatabaseList": {
 			"description": "This is a list of databases sent back from a server.",
 			"properties": {
@@ -297,7 +345,7 @@
 			"schema": { 
 				"type": "array",
 				"items": {
-					"$ref": "#/definitions/Database"
+					"$ref": "#/definitions/AdmResource"
 				}
 			},
 			"headers": {
