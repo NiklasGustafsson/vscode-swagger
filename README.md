@@ -5,6 +5,8 @@ much like you can do with markdown files.
 
 The extension is implemented in TypeScript, in the file [swaggerpreview/src/extension.ts](swaggerpreview/src/extension.ts). In response to edits to a Swagger JSON document, it parses the data and generates HTML that is then displayed in a preview window.
 
+Currently, the plugin does not work very well if you are using a dark theme in VS Code. Switch to the light theme while using it.
+
 ## Installation
 
 There is no installer for this plugin. Instead, you copy three files in place.
