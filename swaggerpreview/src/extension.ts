@@ -35,6 +35,15 @@ export function activate(context: vscode.ExtensionContext) {
             // To simplify things, the style sheet is defined inside the HTML document.           
             var style =
                 `<style>
+.vscode-light {
+	color: rgb(30, 30, 30);
+}
+.vscode-dark {
+	color: #AAA;
+}
+.vscode-high-contrast {
+	color: white;
+}
 html {
   font-family: "Segoe WPC", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", sans-serif, "Droid Sans Fallback";
   font-size: 10px; }
@@ -63,6 +72,10 @@ h2 {
 h3, h4 {
   font-size: 1.6rem;
   color: #692682; }
+.vscode-dark h3 {
+  color: orange; }
+.vscode-dark h4 {
+  color: orange; }
 h4 {
   margin-bottom: 0; }
 ul {
@@ -80,12 +93,17 @@ ul {
   font-size: 1.6rem;
   font-family: "Segoe UI Semibold", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", sans-serif, "Droid Sans Fallback";
   color: #333333; }
+.vscode-dark .termlabel {
+  color: #AAA; }
 .optional-required {
   font-family: "Segoe UI Semibold", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", sans-serif, "Droid Sans Fallback";
   color: #333333;
   font-weight: 400; }
 .type {
   display: block; }
+.vscode-dark a { 
+    color: #0A0;
+}
 dl {
   position: relative;
   width: 100%;
@@ -100,15 +118,28 @@ dd {
   margin: 0; }
   dd > span, dd > div {
     margin-left: 25%; }
-header h1 {
+.vscode-light header h1 {
   color: #692682;
   font-size: 3.7rem;
   font-family: "Segoe UI Light", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", "Helvetica Neue", sans-serif, "Droid Sans Fallback";
   font-weight: 300; }
   header h1:first-child {
     margin-top: 0; }
-header h2 {
+.vscode-dark header h1 {
+  color: white;
+  font-size: 3.7rem;
+  font-family: "Segoe UI Light", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", "Helvetica Neue", sans-serif, "Droid Sans Fallback";
+  font-weight: 300; }
+  header h1:first-child {
+    margin-top: 0; }
+.vscode-light header h2 {
   color: #767676;
+  font-size: 1.87rem;
+  font-family: "Segoe UI Semilight", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", "Helvetica Neue", sans-serif, "Droid Sans Fallback";
+  font-weight: 400;
+  margin-top: 0; }
+.vscode-dark header h2 {
+  color: white;
   font-size: 1.87rem;
   font-family: "Segoe UI Semilight", "Segoe UI", "SFUIText-Light", "HelveticaNeue-Light", "Helvetica Neue", sans-serif, "Droid Sans Fallback";
   font-weight: 400;
